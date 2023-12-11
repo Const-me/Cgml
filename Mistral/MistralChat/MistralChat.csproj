@@ -10,9 +10,13 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="Mistral-7B-instruct.torrent" />
 	  <None Remove="Readme.md" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Content Include="Mistral-7B-instruct.torrent">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="Readme.md">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>

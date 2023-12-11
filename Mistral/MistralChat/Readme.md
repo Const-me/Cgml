@@ -9,7 +9,10 @@ For this reason, to run the app you gonna need .NET Desktop Runtime, as opposed 
 Download .NET 6.0 Desktop Runtime for Windows OS and x64 platform [from microsoft.com](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).<br/>
 Install that thing.
 
-Download `Mistral-7B-instruct-bcml1.cgml` file [using BitTorrent](magnet:?xt=urn:btih:E1419810A5CB8419958B02170AB044DD7354F39C&dn=Mistral-7B-instruct&tr=udp%3A%2F%2Fbt2.archive.org%3A6969%2Fannounce).<br/>
+Download `Mistral-7B-instruct-bcml1.cgml` file with BitTorrent, from the following magnet link:<br/>
+`magnet:?xt=urn:btih:E1419810A5CB8419958B02170AB044DD7354F39C&dn=Mistral-7B-instruct&tr=udp%3A%2F%2Fbt2.archive.org%3A6969%2Fannounce`<br />
+If the link won’t work, this folder also contains the corresponding `Mistral-7B-instruct.torrent` file.
+
 Note it’s a large file, 4.55 GB.<br/>
 I have only rented the [seedbox](https://seedboxes.cc/) for 3 months, the link will probably expire in March 2024.
 
