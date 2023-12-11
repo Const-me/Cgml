@@ -34,8 +34,9 @@ On my laptop with integrated AMD GPU I'm getting about 2 tokens/second.
 It seems the performance bottleneck is memory bandwidth.<br/>
 VRAM in nVidia 1080 Ti delivers up to 484 GB/second, dual-channel DDR4 in the laptop up to 50 GB/second.
 
-I have tested on another desktop PC with nVidia GeForce 1650 GPU, which only has 4GB VRAM.<br/>
-The software works, but because the model doesn’t fit in 4GB, it only managed to generate 1 token/second.
+I have tested on another desktop PC with nVidia GeForce 1650 GPU, which only has 4 GB VRAM.<br/>
+The software works, but because the model doesn’t fit in 4GB, it only managed to generate 1 token/second.<br/>
+Apparently, to run this program at optimal speed the GPU needs to have at least 6 GB VRAM.
 
 ## Converting Original Model
 
