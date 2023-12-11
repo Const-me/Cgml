@@ -78,6 +78,19 @@ See another `Readme.md` document in that folder.
 
 The compiled binaries are available on the Releases page in this repository.
 
+## Libraries
+
+The binaries are available on [NuGet](https://www.nuget.org/).<br/>
+The package IDs are `Cgml`, `Cgml.TorchLoader`, and `Cgml.MistralModel`.
+
+`Cgml` contains D3D11 backend DLL, and it’s .NET projection.<br/>
+You can use it to implement other ML models. Note you going to need the `PackShaders.exe` design-time tool.
+
+`Cgml.TorchLoader` contains PyTorch importer.
+
+`Cgml.MistralModel` contains Mistral model implementation.<br/>
+You can use it to integrate the complete model into your software, replacing WPF frontend of `MistralChat.exe`
+
 # Technical Details
 
 ## C++ Backend
