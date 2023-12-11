@@ -52,7 +52,7 @@ Here are the main points:
   can compile HLSL into SPIR-V.
   Portions of DXVK project code, available [here](https://github.com/doitsujin/dxvk), which implements D3D11 on top of Vulkan,
   can be adapted for the new backend. The backend only utilizes a small subset of the D3D11 API,
-  including device, context, buffers, compute shaders, and queries.
+  including device, immediate context, buffers, compute shaders, and queries.
 
 * **Simplified Approach to Compute Kernels**<br/>
   Conventional AI libraries bury GPU-running compute kernels deep within the lower levels of the stack,
