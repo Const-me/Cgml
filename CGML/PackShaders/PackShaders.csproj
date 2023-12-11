@@ -12,11 +12,21 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Readme.md" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Include="..\CgmlNet\Misc\AssemblyInfo.cs" Link="Misc\AssemblyInfo.cs" />
 	  <Compile Include="..\CgmlNet\Utils\PreSharedDictionary.cs" Link="Shaders\PreSharedDictionary.cs" />
 	  <Compile Include="..\CgmlNet\Shaders\ShaderBinarySlice.cs" Link="Shaders\ShaderBinarySlice.cs" />
 	  <Compile Include="..\CgmlNet\Shaders\ShaderPackage.cs" Link="Shaders\ShaderPackage.cs" />
 	  <Compile Include="..\CgmlNet\Utils\sDeviceInfo.cs" Link="Utils\sDeviceInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Readme.md">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>

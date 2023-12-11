@@ -1,4 +1,4 @@
-﻿This project builds a command line tool which packs compiled compute shaders,
+﻿This program is a command line tool which packs compiled compute shaders,
 also generates C# boilerplate code and data structures to dispatch them with `CgmlNet` library.
 
 The tool is designed to be launched automagically from the project which compiles these shaders, as a post-build step.
