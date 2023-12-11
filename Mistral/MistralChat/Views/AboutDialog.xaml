@@ -1,0 +1,21 @@
+﻿<Window x:Class="MistralChat.AboutDialog"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		Title="About Mistral Chat"
+		ResizeMode="NoResize"
+		SizeToContent="WidthAndHeight"
+		WindowStyle="ThreeDBorderWindow">
+	<Window.Resources>
+		<Style TargetType="TextBlock">
+			<Setter Property="TextWrapping" Value="Wrap" />
+		</Style>
+	</Window.Resources>
+	<StackPanel Margin="24,16" Width="240">
+		<TextBlock Text="Mistral Chat Demo" />
+		<TextBlock x:Name="lblVersion" />
+		<Border Height="8" />
+		<TextBlock>This program is a free software licensed under the terms of GNU General Public License, version 2.0; <Hyperlink Click="source_Click">source codes</Hyperlink>.</TextBlock>
+		<Border Height="16" />
+		<Button IsDefault="True" Content="OK" Width="64" HorizontalAlignment="Right" Click="ok_Click" />
+	</StackPanel>
+</Window>

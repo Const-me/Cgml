@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{b05493ad-6952-4d10-8e1d-b5143678baa4}</ProjectGuid>
+    <RootNamespace>Cgml</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;CGML_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <ModuleDefinitionFile>Cgml.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;CGML_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <ModuleDefinitionFile>Cgml.def</ModuleDefinitionFile>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="API\eDownloadFlag.h" />
+    <ClInclude Include="API\iContext.cl.h" />
+    <ClInclude Include="API\iDevice.cl.h" />
+    <ClInclude Include="API\iSentencePiece.cl.h" />
+    <ClInclude Include="API\iTensor.cl.h" />
+    <ClInclude Include="API\loggerApi.h" />
+    <ClInclude Include="API\profiler.h" />
+    <ClInclude Include="API\sDeviceInfo.h" />
+    <ClInclude Include="API\sDeviceParams.h" />
+    <ClInclude Include="API\sTensorDesc.h" />
+    <ClInclude Include="API\TensorShape.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Utils\tensorLoadTransforms.h" />
+    <ClInclude Include="Utils\Compression\bcml1.h" />
+    <ClInclude Include="Utils\Compression\Compressor.h" />
+    <ClInclude Include="D3D\createBuffer.h" />
+    <ClInclude Include="D3D\ConstantBuffersPool.h" />
+    <ClInclude Include="D3D\Context.h" />
+    <ClInclude Include="D3D\createDevice.h" />
+    <ClInclude Include="D3D\listGPUs.h" />
+    <ClInclude Include="D3D\Device.h" />
+    <ClInclude Include="D3D\RenderDoc\renderDoc.h" />
+    <ClInclude Include="D3D\RenderDoc\renderdoc_app.h" />
+    <ClInclude Include="D3D\Tensor.h" />
+    <ClInclude Include="D3D\tensorUtils.h" />
+    <ClInclude Include="Utils\Compression\iCompressor.h" />
+    <ClInclude Include="Utils\MemoryReader.h" />
+    <ClInclude Include="Utils\Profiler\ProfileCollection.h" />
+    <ClInclude Include="Utils\Profiler\GpuProfiler.h" />
+    <ClInclude Include="Utils\Profiler\DelayExecution.h" />
+    <ClInclude Include="Utils\LargeBuffer.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Utils\Logger.h" />
+    <ClInclude Include="Utils\miscUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Utils\tensorLoadTransforms.cpp" />
+    <ClCompile Include="Utils\Compression\bcml1.cpp">
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <ClCompile Include="Utils\Compression\Compressor.cpp" />
+    <ClCompile Include="D3D\createBuffer.cpp" />
+    <ClCompile Include="D3D\ConstantBuffersPool.cpp" />
+    <ClCompile Include="D3D\Context.submit.cpp" />
+    <ClCompile Include="D3D\Context.move.cpp" />
+    <ClCompile Include="D3D\Context.misc.cpp" />
+    <ClCompile Include="D3D\Context.topP.cpp" />
+    <ClCompile Include="D3D\createDevice.cpp" />
+    <ClCompile Include="D3D\listGPUs.cpp" />
+    <ClCompile Include="D3D\Device.cpp" />
+    <ClCompile Include="D3D\RenderDoc\renderDoc.cpp" />
+    <ClCompile Include="D3D\tensorUtils.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="D3D\Tensor.cpp" />
+    <ClCompile Include="Utils\downcastFloats.cpp" />
+    <ClCompile Include="Utils\MemoryReader.cpp" />
+    <ClCompile Include="Utils\Profiler\ProfileCollection.cpp" />
+    <ClCompile Include="Utils\Profiler\GpuProfiler.cpp" />
+    <ClCompile Include="Utils\Profiler\DelayExecution.cpp" />
+    <ClCompile Include="Utils\LargeBuffer.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Utils\dbgTensorsDiff.cpp" />
+    <ClCompile Include="Utils\Logger.cpp" />
+    <ClCompile Include="Utils\miscUtils.cpp" />
+    <ClCompile Include="Utils\TensorShape.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Cgml.def" />
+    <None Include="Readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ComLightLib\ComLightLib.vcxproj">
+      <Project>{52f486e7-830c-45d8-be47-e76b5aab2772}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\SentencePiece\SentencePiece.vcxproj">
+      <Project>{d85d522d-5a68-471e-8943-96a676785fe4}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Utils\NatvisFile.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

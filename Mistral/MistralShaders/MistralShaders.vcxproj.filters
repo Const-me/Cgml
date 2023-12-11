@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="MistralShaders.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="getRows.hlsl" />
+    <FxCompile Include="rmsNorm.hlsl" />
+    <FxCompile Include="rmsNorm2.hlsl" />
+    <FxCompile Include="mulMatTiled.hlsl" />
+    <FxCompile Include="rowMatProduct.hlsl" />
+    <FxCompile Include="rotaryEmbedding.hlsl" />
+    <FxCompile Include="memsetFloat.hlsl" />
+    <FxCompile Include="attentionCacheUpdate.hlsl" />
+    <FxCompile Include="applyMask.hlsl" />
+    <FxCompile Include="softMax.hlsl" />
+    <FxCompile Include="copyTranspose.hlsl" />
+    <FxCompile Include="addInPlace.hlsl" />
+    <FxCompile Include="silu.hlsl" />
+    <FxCompile Include="softMaxFinal.hlsl" />
+    <FxCompile Include="replaceResultColumn.hlsl" />
+    <FxCompile Include="copyLastRow.hlsl" />
+    <FxCompile Include="rowMatProductBc1.hlsl" />
+    <FxCompile Include="sampleTopP.hlsl" />
+    <FxCompile Include="logSoftMax.hlsl" />
+    <FxCompile Include="sampleMax.hlsl" />
+    <FxCompile Include="mulMatTiledRepeatZ.hlsl" />
+    <FxCompile Include="unrotate.hlsl" />
+    <FxCompile Include="rotaryEmbedding.fp1.hlsl" />
+    <FxCompile Include="rotaryEmbedding.fp2.hlsl" />
+    <FxCompile Include="rowMatProductFixed.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="miscUtils.hlsli" />
+    <None Include="groupReduce.hlsli" />
+    <None Include="bcml.hlsli" />
+    <None Include="rowMatCompressedV1.hlsli" />
+    <None Include="rowMatCompressedV2.hlsli" />
+    <None Include="Readme.md" />
+  </ItemGroup>
+</Project>

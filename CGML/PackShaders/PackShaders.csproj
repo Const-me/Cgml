@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<DefineConstants>$(DefineConstants);PACK_SHADERS_TOOL</DefineConstants>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Include="..\CgmlNet\Misc\AssemblyInfo.cs" Link="Misc\AssemblyInfo.cs" />
+	  <Compile Include="..\CgmlNet\Utils\PreSharedDictionary.cs" Link="Shaders\PreSharedDictionary.cs" />
+	  <Compile Include="..\CgmlNet\Shaders\ShaderBinarySlice.cs" Link="Shaders\ShaderBinarySlice.cs" />
+	  <Compile Include="..\CgmlNet\Shaders\ShaderPackage.cs" Link="Shaders\ShaderPackage.cs" />
+	  <Compile Include="..\CgmlNet\Utils\sDeviceInfo.cs" Link="Utils\sDeviceInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Shaders\" />
+	</ItemGroup>
+
+</Project>

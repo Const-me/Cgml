@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<RootNamespace>Mistral</RootNamespace>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Model\Generated\ShadersRelease.bin" />
+		<None Remove="Model\Generated\ShadersDebug.bin" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'!='Release'">
+		<EmbeddedResource Include="Model\Generated\ShadersDebug.bin">
+			<LogicalName>Model\Generated\Shaders.bin</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<EmbeddedResource Include="Model\Generated\ShadersRelease.bin">
+			<LogicalName>Model\Generated\Shaders.bin</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\CGML\CgmlNet\CgmlNet.csproj" />
+		<ProjectReference Include="..\..\CGML\TorchLoader\TorchLoader.csproj" />
+	</ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<NuspecFile>MistralModel.nuspec</NuspecFile>
+	</PropertyGroup>
+</Project>

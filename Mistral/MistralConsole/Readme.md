@@ -1,0 +1,1 @@
+﻿This C# project builds a console application to test the MistralModel library.

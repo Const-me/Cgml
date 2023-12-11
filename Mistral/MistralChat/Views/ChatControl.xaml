@@ -1,0 +1,108 @@
+﻿<UserControl
+		x:Class="MistralChat.ChatControl"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+		xmlns:local="clr-namespace:MistralChat"
+		mc:Ignorable="d" 
+		d:DesignHeight="450" d:DesignWidth="800">
+	<UserControl.Resources>
+
+		<BooleanToVisibilityConverter x:Key="bool2vis" />
+
+		<Style x:Key="chatMessage" TargetType="{x:Type TextBlock}">
+			<Setter Property="FontFamily" Value="Consolas" />
+			<Setter Property="FontSize" Value="13.333" />
+			<Setter Property="TextWrapping" Value="Wrap" />
+		</Style>
+
+		<local:ChatLogTemplateSelector x:Key="templateSelector">
+			<local:ChatLogTemplateSelector.user>
+				<DataTemplate>
+					<TextBlock HorizontalAlignment="Right" Margin="32,4,4,4"
+						Text="{Binding}" Style="{StaticResource chatMessage}" />
+				</DataTemplate>
+			</local:ChatLogTemplateSelector.user>
+			<local:ChatLogTemplateSelector.computer>
+				<DataTemplate>
+					<TextBlock HorizontalAlignment="Left" Margin="4,4,32,4"
+						Text="{Binding text}" Style="{StaticResource chatMessage}" />
+				</DataTemplate>
+			</local:ChatLogTemplateSelector.computer>
+		</local:ChatLogTemplateSelector>
+
+		<Style TargetType="{x:Type TextBox}">
+			<Setter Property="FontFamily" Value="Consolas" />
+			<Setter Property="FontSize" Value="13.333" />
+			<Setter Property="Padding" Value="2" />
+			<Setter Property="AcceptsReturn" Value="True" />
+			<Setter Property="TextWrapping" Value="Wrap" />
+		</Style>
+
+	</UserControl.Resources>
+
+	<Grid Margin="10">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" MinHeight="100" />
+		</Grid.RowDefinitions>
+
+		<Grid Visibility="{Binding visInitialPrompt}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" MinHeight="70" />
+			</Grid.RowDefinitions>
+			<TextBlock Text="Initial Prompt:" />
+			<TextBox x:Name="tbInitialPrompt" Grid.Row="1" Text="{Binding initialPrompt, Mode=TwoWay}" />
+		</Grid>
+
+		<ItemsControl Grid.Row="1" ItemsSource="{Binding history}"
+			ItemTemplateSelector="{StaticResource templateSelector}" HorizontalContentAlignment="Stretch">
+			<!-- Enable scrolling if needed -->
+			<ItemsControl.Template>
+				<ControlTemplate>
+					<ScrollViewer x:Name="ScrollViewer" Padding="{TemplateBinding Padding}"
+							HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+						<ItemsPresenter />
+					</ScrollViewer>
+				</ControlTemplate>
+			</ItemsControl.Template>
+			<!-- Enable copying text with a context menu --> 
+			<ItemsControl.ContextMenu>
+				<ContextMenu>
+					<MenuItem Header="_Copy" Click="copyChat_Click"/>
+				</ContextMenu>
+			</ItemsControl.ContextMenu>
+		</ItemsControl>
+
+		<Grid Grid.Row="2" Margin="0,3,0,5">
+			<StackPanel Orientation="Horizontal" Margin="0,2" VerticalAlignment="Center" HorizontalAlignment="Left">
+				<TextBlock Text="Performance stats: " />
+				<Border Width="6" />
+				<TextBlock Text="{Binding generatorStats, Mode=OneWay}" />
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+				<Button Content="stop generating" IsEnabled="{Binding canCancel}"
+					Padding="6,0" Click="cancel_click" />
+				<Border Width="10" />
+				<Button Content="regenerate last response" IsEnabled="{Binding canRegenerate}"
+					Padding="6,0" Click="regenerate_click" />
+				<Border Width="10" />
+				<Button Content="clear chat history" IsEnabled="{Binding canRegenerate}"
+					Padding="6,0" Click="clear_click" />
+			</StackPanel>
+		</Grid>
+
+		<Grid Grid.Row="3">
+			<TextBlock Text="{Binding watermark}" Margin="5,3"
+				Visibility="{Binding ElementName=tbInput, Path=Text.IsEmpty, Converter={StaticResource bool2vis}}"
+				Foreground="DimGray" VerticalAlignment="Top" HorizontalAlignment="Left"
+				FontFamily="Consolas" FontSize="13.333" />
+			<TextBox x:Name="tbInput" Background="Transparent" KeyDown="chat_KeyDown" />
+		</Grid>
+	</Grid>
+
+</UserControl>

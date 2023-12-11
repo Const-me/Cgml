@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+	<metadata>
+		<id>Cgml.MistralModel</id>
+		<version>1.0.0</version>
+		<authors>Konstantin, const.me</authors>
+		<license type="expression">LGPL-2.1-only</license>
+		<projectUrl>https://github.com/Const-me/Cgml</projectUrl>
+		<description>Inference of Mistral language model</description>
+		<releaseNotes>Initial public release</releaseNotes>
+		<copyright>Copyright © const.me, 2023</copyright>
+		<tags>gpgpu, AI, ML</tags>
+		<repository type="git" url="https://github.com/Const-me/Cgml.git" />
+		<dependencies>
+			<group targetFramework="net6.0">
+				<dependency id="Cgml" version="1.0.0" />
+				<dependency id="Cgml.TorchLoader" version="1.0.0" />
+			</group>
+		</dependencies>
+		<readme>docs/Readme.md</readme>
+	</metadata>
+	<files>
+		<!-- Managed DLL with XML documentation -->
+		<file src="bin/Release/MistralModel.dll" target="lib/net6.0/" />
+		<file src="bin/Release/MistralModel.xml" target="lib/net6.0/" />
+		<!-- Readme for the nuget package -->
+		<file src="Readme.md" target="docs/" />
+	</files>
+</package>

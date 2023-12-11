@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="API\loggerApi.h" />
+    <ClInclude Include="Utils\Logger.h" />
+    <ClInclude Include="API\iDevice.cl.h" />
+    <ClInclude Include="API\sTensorDesc.h" />
+    <ClInclude Include="API\TensorShape.h" />
+    <ClInclude Include="API\iTensor.cl.h" />
+    <ClInclude Include="API\iContext.cl.h" />
+    <ClInclude Include="API\sDeviceParams.h" />
+    <ClInclude Include="D3D\listGPUs.h" />
+    <ClInclude Include="D3D\Device.h" />
+    <ClInclude Include="D3D\Context.h" />
+    <ClInclude Include="D3D\RenderDoc\renderDoc.h" />
+    <ClInclude Include="D3D\RenderDoc\renderdoc_app.h" />
+    <ClInclude Include="D3D\createDevice.h" />
+    <ClInclude Include="API\sDeviceInfo.h" />
+    <ClInclude Include="Utils\LargeBuffer.h" />
+    <ClInclude Include="Utils\miscUtils.h" />
+    <ClInclude Include="D3D\Tensor.h" />
+    <ClInclude Include="D3D\tensorUtils.h" />
+    <ClInclude Include="API\iSentencePiece.cl.h" />
+    <ClInclude Include="D3D\ConstantBuffersPool.h" />
+    <ClInclude Include="Utils\Profiler\DelayExecution.h" />
+    <ClInclude Include="Utils\Profiler\GpuProfiler.h" />
+    <ClInclude Include="API\profiler.h" />
+    <ClInclude Include="Utils\Profiler\ProfileCollection.h" />
+    <ClInclude Include="D3D\createBuffer.h" />
+    <ClInclude Include="Utils\Compression\Compressor.h" />
+    <ClInclude Include="Utils\Compression\iCompressor.h" />
+    <ClInclude Include="Utils\Compression\bcml1.h" />
+    <ClInclude Include="Utils\MemoryReader.h" />
+    <ClInclude Include="API\eDownloadFlag.h" />
+    <ClInclude Include="Utils\tensorLoadTransforms.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Utils\dbgTensorsDiff.cpp" />
+    <ClCompile Include="Utils\Logger.cpp" />
+    <ClCompile Include="D3D\listGPUs.cpp" />
+    <ClCompile Include="D3D\Device.cpp" />
+    <ClCompile Include="D3D\Context.move.cpp" />
+    <ClCompile Include="D3D\createDevice.cpp" />
+    <ClCompile Include="D3D\RenderDoc\renderDoc.cpp" />
+    <ClCompile Include="Utils\LargeBuffer.cpp" />
+    <ClCompile Include="Utils\miscUtils.cpp" />
+    <ClCompile Include="D3D\Tensor.cpp" />
+    <ClCompile Include="Utils\TensorShape.cpp" />
+    <ClCompile Include="D3D\tensorUtils.cpp" />
+    <ClCompile Include="D3D\ConstantBuffersPool.cpp" />
+    <ClCompile Include="D3D\Context.submit.cpp" />
+    <ClCompile Include="D3D\Context.misc.cpp" />
+    <ClCompile Include="D3D\Context.topP.cpp" />
+    <ClCompile Include="Utils\Profiler\DelayExecution.cpp" />
+    <ClCompile Include="Utils\Profiler\GpuProfiler.cpp" />
+    <ClCompile Include="Utils\Profiler\ProfileCollection.cpp" />
+    <ClCompile Include="D3D\createBuffer.cpp" />
+    <ClCompile Include="Utils\Compression\Compressor.cpp" />
+    <ClCompile Include="Utils\Compression\bcml1.cpp" />
+    <ClCompile Include="Utils\MemoryReader.cpp" />
+    <ClCompile Include="Utils\downcastFloats.cpp" />
+    <ClCompile Include="Utils\tensorLoadTransforms.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Cgml.def" />
+    <None Include="Readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Utils\NatvisFile.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+</Project>
