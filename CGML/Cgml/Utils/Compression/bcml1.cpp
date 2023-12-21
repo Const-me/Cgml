@@ -314,7 +314,7 @@ namespace
 				// For optimal compression quality, pad incomplete blocks with the last value
 				__stosw( bufferIn + remainder, rsi[ remainder - 1 ], 32 - remainder );
 
-				Codec::compressBlock( rdi, rsi );
+				Codec::compressBlock( rdi, bufferIn );
 				rdi += Codec::integersPerBlock;
 				rsi += remainder;
 			}
