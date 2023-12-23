@@ -12,13 +12,7 @@ namespace Cgml
 
 		virtual HRESULT COMLIGHTCALL bindShader( uint16_t id, const uint8_t* constantBufferData, int cbSize ) = 0;
 		virtual HRESULT COMLIGHTCALL dispatch( int groupsX, int groupsY, int groupsZ ) = 0;
-		virtual HRESULT COMLIGHTCALL bindTensors0( iTensor* result ) = 0;
-		virtual HRESULT COMLIGHTCALL bindTensors1( iTensor* result, iTensor* arg0 ) = 0;
-		virtual HRESULT COMLIGHTCALL bindTensors2( iTensor* result, iTensor* arg0, iTensor* arg1 ) = 0;
-		virtual HRESULT COMLIGHTCALL bindTensors3( iTensor* result, iTensor* arg0, iTensor* arg1, iTensor* arg2 ) = 0;
-		virtual HRESULT COMLIGHTCALL bindTensors2w( iTensor* result0, iTensor* result1 ) = 0;
-		virtual HRESULT COMLIGHTCALL bindTensors2w2r( iTensor* res0, iTensor* res1, iTensor* source0, iTensor* source1 ) = 0;
-		virtual HRESULT COMLIGHTCALL bindTensors2w1r( iTensor* res0, iTensor* res1, iTensor* arg0 ) = 0;
+		virtual HRESULT COMLIGHTCALL bindTensors( iTensor** arr, int countWrite, int countRead ) = 0;
 		virtual HRESULT COMLIGHTCALL unbindInputs() = 0;
 
 		// Copy the entire contents of the source tensor to the destination tensor using the GPU

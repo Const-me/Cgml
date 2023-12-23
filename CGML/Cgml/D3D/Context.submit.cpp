@@ -52,32 +52,43 @@ namespace
 	}
 }
 
-HRESULT Context::bindTensors( std::initializer_list<iTensor*> uav, std::initializer_list<iTensor*> srv ) noexcept
+HRESULT COMLIGHTCALL Context::bindTensors( iTensor** arr, int countWriteInt, int countReadInt ) noexcept
 {
-	const size_t countUav = std::max( (size_t)boundUavs, uav.size() );
-	const size_t countSrv = std::max( (size_t)boundSrvs, srv.size() );
+	if( countWriteInt <= 0 || countWriteInt > D3D11_PS_CS_UAV_REGISTER_COUNT )
+	{
+		logError( u8"Valid count of output tensors is [ 1 .. %i ]", (int)D3D11_PS_CS_UAV_REGISTER_COUNT );
+		return E_INVALIDARG;
+	}
+	if( countReadInt < 0 || countReadInt > D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT )
+	{
+		logError( u8"Valid count of input tensors is [ 0 .. %i ]", (int)D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT );
+		return E_INVALIDARG;
+	}
+
+	const size_t countWrite = (uint32_t)countWriteInt;
+	const size_t countRead = (uint32_t)countReadInt;
+	const size_t countUav = std::max( (size_t)boundUavs, countWrite );
+	const size_t countSrv = std::max( (size_t)boundSrvs, countRead );
 
 	ID3D11UnorderedAccessView** const arrUav = (ID3D11UnorderedAccessView**)_alloca( countUav * sizeof( void* ) );
 	ID3D11ShaderResourceView** const arrSrv = (ID3D11ShaderResourceView**)_alloca( countSrv * sizeof( void* ) );
 
-	for( size_t i = 0; i < uav.size(); i++ )
-		CHECK( makeUav( &arrUav[ i ], uav.begin()[ i ] ) );
+	for( size_t i = 0; i < countWrite; i++ )
+		CHECK( makeUav( &arrUav[ i ], arr[ i ] ) );
+	if( countWrite < countUav )
+		__stosq( (uint64_t*)&arrUav[ countWrite ], 0, countUav - countWrite );
 
-	if( uav.size() < countUav )
-		__stosq( (uint64_t*)&arrUav[ uav.size() ], 0, countUav - uav.size() );
-
-	for( size_t i = 0; i < srv.size(); i++ )
-		CHECK( makeSrv( &arrSrv[ i ], srv.begin()[ i ] ) );
-
-	if( srv.size() < countSrv )
-		__stosq( (uint64_t*)&arrSrv[ srv.size() ], 0, countSrv - srv.size() );
+	for( size_t i = 0; i < countRead; i++ )
+		CHECK( makeSrv( &arrSrv[ i ], arr[ countWrite + i ] ) );
+	if( countRead < countSrv )
+		__stosq( (uint64_t*)&arrSrv[ countRead ], 0, countSrv - countRead );
 
 	context->CSSetUnorderedAccessViews( 0, (UINT)countUav, arrUav, nullptr );
 	if( countSrv > 0 )
 		context->CSSetShaderResources( 0, (UINT)countSrv, arrSrv );
 
-	boundUavs = (uint8_t)uav.size();
-	boundSrvs = (uint8_t)srv.size();
+	boundUavs = (uint8_t)countWrite;
+	boundSrvs = (uint8_t)countRead;
 	return S_OK;
 }
 

@@ -33,29 +33,13 @@ public interface iContext: IDisposable
 	/// <summary>Dispatch the currently bound compute shader</summary>
 	void dispatch( int groupsX, int groupsY = 1, int groupsZ = 1 );
 
-	/// <summary>Bind 1 tensor for writing</summary>
-	void bindTensors0( iTensor result );
-
-	/// <summary>Bind 1 tensor for writing, and 1 for reading</summary>
-	void bindTensors1( iTensor result, iTensor arg0 );
-
-	/// <summary>Bind 1 tensor for writing, and 2 for reading</summary>
-	void bindTensors2( iTensor result, iTensor arg0, iTensor arg1 );
-
-	/// <summary>Bind 1 tensor for writing, and 3 for reading</summary>
-	void bindTensors3( iTensor result, iTensor arg0, iTensor arg1, iTensor arg2 );
-
-	/// <summary>Bind 2 tensors for writing</summary>
-	void bindTensors2w( iTensor result0, iTensor result1 );
-
-	/// <summary>Bind 2 tensors for writing and 2 for reading</summary>
-	void bindTensors2w2r( iTensor res0, iTensor res1, iTensor arg0, iTensor arg1 );
-
-	/// <summary>Bind 2 tensors for writing and 1 for reading</summary>
-	void bindTensors2w1r( iTensor res0, iTensor res1, iTensor arg0 );
+	/// <summary>Bind countWrite tensor for writing, and countRead tensors for readonly access.</summary>
+	/// <remarks>Compute shaders might read from the tensors bound for writing, they have read+write access to them.</remarks>
+	void bindTensors( [In] ref IntPtr arr, int countWrite, int countRead );
 
 	/// <summary>Unbind input tensors</summary>
 	void unbindInputs();
+
 	/// <summary>Copy the entire contents of the source tensor to the destination tensor using the GPU</summary>
 	void copy( iTensor destination, iTensor source );
 
