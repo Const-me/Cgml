@@ -63,5 +63,7 @@ namespace Cgml
 		None = 0,
 		// Convert BF16 numbers into IEEE FP16
 		Fp16MakeIeee = 1,
+		// Convert FP32 numbers into IEEE FP16
+		Fp32DowncastIeee = 2,
 	};
 }

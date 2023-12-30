@@ -8,4 +8,6 @@ public enum eLoadTransform: byte
 	None = 0,
 	/// <summary>Convert <see cref="eDataType.BF16" /> elements into <see cref="eDataType.FP16" /></summary>
 	Fp16MakeIeee = 1,
+	/// <summary>Convert <see cref="eDataType.FP32" /> elements into <see cref="eDataType.FP16" /></summary>
+	Fp32DowncastIeee = 2,
 }

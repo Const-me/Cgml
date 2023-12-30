@@ -39,9 +39,41 @@ namespace
 		makeIeeeFp16( remainder );
 		__movsw( buffer, remainder, rem );
 	}
+
+	static void __declspec( noinline ) downcastFp32Floats( void* pv, size_t length )
+	{
+		const float* rsi = (const float*)pv;
+		uint16_t* rdi = (uint16_t*)pv;
+
+		constexpr size_t maskAlign8 = ~(size_t)7;
+		const float* const rsiEndAligned = rsi + ( length & maskAlign8 );
+		const size_t rem = length % 8;
+
+		while( rsi < rsiEndAligned )
+		{
+			__m256 floats = _mm256_loadu_ps( rsi );
+			rsi += 8;
+			__m128i f16 = _mm256_cvtps_ph( floats, _MM_FROUND_TO_NEAREST_INT );
+			_mm_storeu_si128( ( __m128i* )rdi, f16 );
+			rdi += 8;
+		}
+
+		if( 0 != rem )
+		{
+			float sourceBuffer[ 8 ];
+			uint16_t resultBuffer[ 8 ];
+			__movsd( (DWORD*)( &sourceBuffer[ 0 ] ), (const DWORD*)( rsi ), rem );
+			__stosd( (DWORD*)( &sourceBuffer[ rem ] ), 0, 8 - rem );
+
+			__m256 floats = _mm256_loadu_ps( rsi );
+			__m128i f16 = _mm256_cvtps_ph( floats, _MM_FROUND_TO_NEAREST_INT );
+			_mm_storeu_si128( ( __m128i* )( &resultBuffer[ 0 ] ), f16 );
+			__movsw( rdi, &resultBuffer[ 0 ], rem );
+		}
+	}
 }
 
-HRESULT Cgml::loadTransform( eLoadTransform tform, eDataType& dt, DXGI_FORMAT& viewFormat, void* pv, size_t elements )
+HRESULT Cgml::loadTransform( eLoadTransform tform, eDataType& dt, DXGI_FORMAT& viewFormat, void* pv, size_t& bytes, size_t elements )
 {
 	assert( tform != eLoadTransform::None );
 	if( tform == eLoadTransform::Fp16MakeIeee )
@@ -59,6 +91,24 @@ HRESULT Cgml::loadTransform( eLoadTransform tform, eDataType& dt, DXGI_FORMAT& v
 		else
 		{
 			logError( u8"The specified tensor format transformation requires AVX2 and F16C support" );
+			return HRESULT_FROM_WIN32( ERROR_HV_CPUID_FEATURE_VALIDATION );
+		}
+	}
+	if( tform == eLoadTransform::Fp32DowncastIeee )
+	{
+		if( dt != eDataType::FP32 )
+			return S_OK;
+		if( Bcml1::checkExtensionFlags( Bcml1::eCpuExtensionFlags::F16C ) )
+		{
+			downcastFp32Floats( pv, elements );
+			dt = eDataType::FP16;
+			viewFormat = DXGI_FORMAT_R16_FLOAT;
+			bytes /= 2;
+			return S_OK;
+		}
+		else
+		{
+			logError( u8"The specified tensor format transformation requires F16C support" );
 			return HRESULT_FROM_WIN32( ERROR_HV_CPUID_FEATURE_VALIDATION );
 		}
 	}

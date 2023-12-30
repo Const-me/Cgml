@@ -106,7 +106,7 @@ HRESULT Device::loadImmutableTensor( iTensor** pp, const sTensorDesc& desc, ComL
 	sTypeInfo ti;
 	CHECK( sTypeInfo::initialize( ti, desc ) );
 
-	const size_t bufferBytes = elements * ti.cbElement;
+	size_t bufferBytes = elements * ti.cbElement;
 	if( 0 != ( bufferBytes >> 31 ) )
 	{
 		logError( u8"The tensor is too large, exceeds 2GB VRAM" );
@@ -128,7 +128,7 @@ HRESULT Device::loadImmutableTensor( iTensor** pp, const sTensorDesc& desc, ComL
 	else
 	{
 		sTensorDesc d2 = desc;
-		CHECK( Cgml::loadTransform( tform, d2.dataType, ti.format, buffer.pointer(), elements ) );
+		CHECK( Cgml::loadTransform( tform, d2.dataType, ti.format, buffer.pointer(), bufferBytes, elements ) );
 		return uploadImmutable( pp, d2, buffer.pointer(), bufferBytes, ti.format, (UINT)elements );
 	}
 }
