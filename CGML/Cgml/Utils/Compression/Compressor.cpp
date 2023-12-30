@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Compressor.h"
 #include "bcml1.h"
+#include <D3D/tensorUtils.h>
 using namespace Cgml;
 
 HRESULT iCompressor::create( std::unique_ptr<iCompressor>& rdi, ID3D11Device* device )
@@ -93,7 +94,9 @@ HRESULT Compressor::getBuffer( std::vector<__m256i>& vec, size_t lengthBytes ) n
 
 HRESULT Compressor::bcml( Cgml::iTensor** rdi, const Cgml::sTensorDesc& desc, std::vector<__m256i>& data, size_t lengthBytes ) noexcept
 {
-	size_t expectedBytes = desc.shape.countElements() * 2;
+	const size_t elts = desc.shape.countElements();
+	const size_t cbElt = bytesPerElement( desc.dataType );
+	size_t expectedBytes = elts * cbElt;
 	if( expectedBytes != lengthBytes )
 	{
 		logError( u8"Incorrect size" );

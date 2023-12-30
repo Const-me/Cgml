@@ -71,27 +71,48 @@ namespace
 		return _mm_packus_epi16( r0, r1 );
 	}
 
-	// Load 32 FP16 values, quantize to specific bit depth, store block header,
+	// Load 32 numbers from memory into 4 FP32 AVX vectors
+	template<Cgml::eDataType dt>
+	__forceinline void load32( __m256& v0, __m256& v1, __m256& v2, __m256& v3, const void* pv );
+
+	template<>
+	__forceinline void load32<Cgml::eDataType::FP16>( __m256& v0, __m256& v1, __m256& v2, __m256& v3, const void* pv )
+	{
+		const uint16_t* rsi = (const uint16_t*)pv;
+		v0 = loadfp16( rsi );
+		v1 = loadfp16( rsi + 8 );
+		v2 = loadfp16( rsi + 16 );
+		v3 = loadfp16( rsi + 24 );
+	}
+
+	template<>
+	__forceinline void load32<Cgml::eDataType::BF16>( __m256& v0, __m256& v1, __m256& v2, __m256& v3, const void* pv )
+	{
+		const uint16_t* rsi = (const uint16_t*)pv;
+		v0 = loadbf16( rsi );
+		v1 = loadbf16( rsi + 8 );
+		v2 = loadbf16( rsi + 16 );
+		v3 = loadbf16( rsi + 24 );
+	}
+
+	template<>
+	__forceinline void load32<Cgml::eDataType::FP32>( __m256& v0, __m256& v1, __m256& v2, __m256& v3, const void* pv )
+	{
+		const float* rsi = (const float*)pv;
+		v0 = _mm256_loadu_ps( rsi );
+		v1 = _mm256_loadu_ps( rsi + 8 );
+		v2 = _mm256_loadu_ps( rsi + 16 );
+		v3 = _mm256_loadu_ps( rsi + 24 );
+	}
+
+	// Load 32 numbers from the source pointer, quantize to specific bit depth, store block header,
 	// and return a vector of the weights, 4 bits/element
-	template<uint8_t outputBits, bool bf16Source, bool bf16Header>
-	__forceinline __m128i quantizeBlock32( uint32_t* rdi, const uint16_t* rsi )
+	template<uint8_t outputBits, Cgml::eDataType sourceType, bool bf16Header>
+	__forceinline __m128i quantizeBlock32( uint32_t* rdi, const void* rsi )
 	{
 		// Load elements into 4 AVX vectors
 		__m256 v0, v1, v2, v3;
-		if constexpr( bf16Source )
-		{
-			v0 = loadbf16( rsi );
-			v1 = loadbf16( rsi + 8 );
-			v2 = loadbf16( rsi + 16 );
-			v3 = loadbf16( rsi + 24 );
-		}
-		else
-		{
-			v0 = loadfp16( rsi );
-			v1 = loadfp16( rsi + 8 );
-			v2 = loadfp16( rsi + 16 );
-			v3 = loadfp16( rsi + 24 );
-		}
+		load32<sourceType>( v0, v1, v2, v3, rsi );
 
 		// Compute min and max for the block
 		__m256 min = v0;
@@ -133,7 +154,7 @@ namespace
 		__m128 divs = _mm_div_ps( t0, t1 );
 
 		// Store two FP16 numbers in the block header, they are [ dist / 15, min ]
-		__m128 headerFloats = _mm_unpacklo_ps( divs, min1 );
+		__m128 headerFloats = _mm_unpacklo_ps( divs, _mm256_castps256_ps128( min ) );
 		if constexpr( bf16Header )
 			storeHeaderBf16( rdi, headerFloats );
 		else
@@ -145,14 +166,14 @@ namespace
 		divs = _mm_movehdup_ps( divs );
 		divs = _mm_and_ps( divs, notEqual );
 
-		// Apply the multiplier
+		// Apply the multiplier to all 32 elements
 		__m256 mul8 = _mm256_broadcastss_ps( divs );
 		v0 = _mm256_mul_ps( v0, mul8 );
 		v1 = _mm256_mul_ps( v1, mul8 );
 		v2 = _mm256_mul_ps( v2, mul8 );
 		v3 = _mm256_mul_ps( v3, mul8 );
 
-		// Round to nearest integer
+		// Round them to nearest integer
 		v0 = _mm256_round_ps( v0, _MM_ROUND_NEAREST );
 		v1 = _mm256_round_ps( v1, _MM_ROUND_NEAREST );
 		v2 = _mm256_round_ps( v2, _MM_ROUND_NEAREST );
@@ -169,9 +190,9 @@ namespace
 		i2 = _mm256_packs_epi32( i2, i3 );
 		// Convert int16 to uint8
 		i0 = _mm256_packus_epi16( i0, i2 );
+
 		// Clamp into [ 0 .. 15 ] or [ 0 .. 7 ], to compensate for possible numerical issues with the floating-point math
 		// The unsigned saturation of _mm256_packus_epi16 already clamped to x >= 0 so we only need to enforce the upper bound
-
 		constexpr int maximumInteger = ( 1 << outputBits ) - 1;
 		i0 = _mm256_min_epu8( i0, _mm256_set1_epi8( (int8_t)maximumInteger ) );
 
@@ -200,29 +221,73 @@ namespace
 		}
 	}
 
-	// Load FP16 elements, quantize to 4 bits, produce BCML1 compressed tensor
+	// Copy `remainder` 16-bit elements rsi -> rdi, pad with the last value
+	__forceinline void remainder16( uint16_t* rdi, const uint16_t* rsi, size_t remainder )
+	{
+		__movsw( rdi, rsi, remainder );
+		// For optimal compression quality, pad incomplete blocks with the last value
+		__stosw( rdi + remainder, rsi[ remainder - 1 ], 32 - remainder );
+	}
+
+	// Copy `remainder` 32-bit elements rsi -> rdi, pad with the last value
+	__forceinline void remainder32( float* rdi, const float* rsi, size_t remainder )
+	{
+		__movsd( (DWORD*)rdi, (const DWORD*)rsi, remainder );
+		// For optimal compression quality, pad incomplete blocks with the last value
+		__stosd( (DWORD*)rdi + remainder, ( (const DWORD*)rsi )[ remainder - 1 ], 32 - remainder );
+	}
+
+	// Load FP16 numbers, quantize to 4 bits, produce BCML1 compressed tensor
 	struct BCML1_F16
 	{
 		static constexpr size_t blockWidth = 32;
 		static constexpr size_t integersPerBlock = 5;
+		using E = uint16_t;
 
 		static __forceinline void compressBlock( uint32_t* rdi, const uint16_t* rsi )
 		{
-			const __m128i weights = quantizeBlock32<4, false, false>( rdi, rsi );
+			const __m128i weights = quantizeBlock32<4, Cgml::eDataType::FP16, false>( rdi, rsi );
 			_mm_storeu_si128( ( __m128i* )( rdi + 1 ), weights );
+		}
+		static __forceinline void remainder( uint16_t* rdi, const uint16_t* rsi, size_t rem )
+		{
+			remainder16( rdi, rsi, rem );
 		}
 	};
 
-	// Load BF16 elements, quantize to 4 bits, produce BCML1 compressed tensor
+	// Load BF16 numbers, quantize to 4 bits, produce BCML1 compressed tensor
 	struct BCML1_BF16
 	{
 		static constexpr size_t blockWidth = 32;
 		static constexpr size_t integersPerBlock = 5;
+		using E = uint16_t;
 
 		static __forceinline void compressBlock( uint32_t* rdi, const uint16_t* rsi )
 		{
-			const __m128i weights = quantizeBlock32<4, true, false>( rdi, rsi );
+			const __m128i weights = quantizeBlock32<4, Cgml::eDataType::BF16, false>( rdi, rsi );
 			_mm_storeu_si128( ( __m128i* )( rdi + 1 ), weights );
+		}
+		static __forceinline void remainder( uint16_t* rdi, const uint16_t* rsi, size_t rem )
+		{
+			remainder16( rdi, rsi, rem );
+		}
+	};
+
+	// Load FP32 numbers, quantize to 4 bits, produce BCML1 compressed tensor
+	struct BCML1_FP32
+	{
+		static constexpr size_t blockWidth = 32;
+		static constexpr size_t integersPerBlock = 5;
+		using E = float;
+
+		static __forceinline void compressBlock( uint32_t* rdi, const float* rsi )
+		{
+			const __m128i weights = quantizeBlock32<4, Cgml::eDataType::FP32, false>( rdi, rsi );
+			_mm_storeu_si128( ( __m128i* )( rdi + 1 ), weights );
+		}
+		static __forceinline void remainder( float* rdi, const float* rsi, size_t rem )
+		{
+			remainder32( rdi, rsi, rem );
 		}
 	};
 
@@ -230,10 +295,11 @@ namespace
 	{
 		static constexpr size_t blockWidth = 32;
 		static constexpr size_t integersPerBlock = 5;
+		using E = uint16_t;
 
 		static __forceinline void compressBlock( uint32_t* rdi, const uint16_t* rsi )
 		{
-			const __m128i weights = quantizeBlock32<4, true, true>( rdi, rsi );
+			const __m128i weights = quantizeBlock32<4, Cgml::eDataType::BF16, true>( rdi, rsi );
 			_mm_storeu_si128( ( __m128i* )( rdi + 1 ), weights );
 		}
 	};
@@ -242,10 +308,11 @@ namespace
 	{
 		static constexpr size_t blockWidth = 32;
 		static constexpr size_t integersPerBlock = 4;
+		using E = uint16_t;
 
 		static __forceinline void compressBlock( uint32_t* rdi, const uint16_t* rsi )
 		{
-			const __m128i weights = quantizeBlock32<3, false, false>( rdi, rsi );
+			const __m128i weights = quantizeBlock32<3, Cgml::eDataType::FP16, false>( rdi, rsi );
 
 			// Move the block payload from the vector to 2 scalar registers
 			uint64_t high = (uint64_t)_mm_extract_epi64( weights, 1 );
@@ -273,7 +340,7 @@ namespace
 	using Bcml1::PANEL_HEIGHT;
 
 	template<class Codec>
-	static HRESULT compressImpl( const Cgml::sTensorDesc& desc, const std::vector<__m256i>& sourceVector, std::vector<uint32_t>& result )
+	static __declspec( noinline ) HRESULT compressImpl( const Cgml::sTensorDesc& desc, const std::vector<__m256i>& sourceVector, std::vector<uint32_t>& result )
 	{
 		size_t compressedBytes = desc.shape.stride[ 3 ];
 		compressedBytes *= desc.shape.size[ 3 ];
@@ -295,7 +362,8 @@ namespace
 
 		const size_t countRows = desc.shape.size[ 1 ] * desc.shape.size[ 2 ] * desc.shape.size[ 3 ];
 
-		const uint16_t* rsi = (const uint16_t*)sourceVector.data();
+		using E = typename Codec::E;
+		const E* rsi = (const E*)sourceVector.data();
 		uint32_t* rdi = result.data();
 
 		for( size_t i = 0; i < countRows; i++ )
@@ -309,11 +377,8 @@ namespace
 
 			if( 0 != remainder )
 			{
-				uint16_t bufferIn[ 32 ];
-				__movsw( bufferIn, rsi, remainder );
-				// For optimal compression quality, pad incomplete blocks with the last value
-				__stosw( bufferIn + remainder, rsi[ remainder - 1 ], 32 - remainder );
-
+				E bufferIn[ 32 ];
+				Codec::remainder( bufferIn, rsi, remainder );
 				Codec::compressBlock( rdi, bufferIn );
 				rdi += Codec::integersPerBlock;
 				rsi += remainder;
@@ -404,16 +469,19 @@ HRESULT Bcml1::makeDesc( sTensorDesc& rdi, const sTensorDesc& rsi )
 
 	eCpuExtensionFlags requiredFlags = eCpuExtensionFlags::AVX2;
 	rdi = rsi;
-	if( rsi.dataType != eDataType::FP16 && rsi.dataType != eDataType::BF16 )
+	switch( rsi.dataType )
 	{
-		logError( u8"BCML compression is only implemented for FP16 and BF16 inputs" );
+	case Cgml::eDataType::FP16:
+	case Cgml::eDataType::BF16:
+	case Cgml::eDataType::FP32:
+		break;
+	default:
+		logError( u8"Unexpected data type for BCML1 compressor" );
 		return E_NOTIMPL;
 	}
-	else
-	{
-		// We gonna upcast and downcast FP16 numbers, check the HW support
-		requiredFlags |= eCpuExtensionFlags::F16C;
-	}
+
+	// We gonna upcast and downcast FP16 numbers, check the HW support
+	requiredFlags |= eCpuExtensionFlags::F16C;
 
 	const uint32_t widthElements = rsi.shape.size[ 0 ];
 	uint32_t rowBytes;
@@ -472,6 +540,8 @@ HRESULT Bcml1::compress( eDataType sourceType, const sTensorDesc& desc, const st
 		return compressImpl<BCML1_F16>( desc, sourceVector, result );
 	case makeKey( eDataType::BF16, eTensorLayout::BCML1 ):
 		return compressImpl<BCML1_BF16>( desc, sourceVector, result );
+	case makeKey( eDataType::FP32, eTensorLayout::BCML1 ):
+		return compressImpl<BCML1_FP32>( desc, sourceVector, result );
 	}
 	return E_NOTIMPL;
 
