@@ -99,9 +99,15 @@
     <ClInclude Include="API\profiler.h" />
     <ClInclude Include="API\sDeviceInfo.h" />
     <ClInclude Include="API\sDeviceParams.h" />
+    <ClInclude Include="API\sImageProcessorParams.h" />
     <ClInclude Include="API\sTensorDesc.h" />
     <ClInclude Include="API\TensorShape.h" />
+    <ClInclude Include="D3D\tensorInterop.h" />
+    <ClInclude Include="ImageProcessor\iImageProcessor.h" />
+    <ClInclude Include="ImageProcessor\ImageProcessor.h" />
+    <ClInclude Include="ImageProcessor\WICTextureLoader11.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Utils\LZ4\lz4.h" />
     <ClInclude Include="Utils\tensorLoadTransforms.h" />
     <ClInclude Include="Utils\Compression\bcml1.h" />
     <ClInclude Include="Utils\Compression\Compressor.h" />
@@ -126,6 +132,17 @@
     <ClInclude Include="Utils\miscUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ImageProcessor\ImageProcessor.cpp" />
+    <ClCompile Include="ImageProcessor\ImageProcessor.decode.cpp" />
+    <ClCompile Include="ImageProcessor\ImageProcessor.shaders.cpp" />
+    <ClCompile Include="ImageProcessor\WICTextureLoader11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Utils\LZ4\lz4.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Utils\tensorLoadTransforms.cpp" />
     <ClCompile Include="Utils\Compression\bcml1.cpp">
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
@@ -161,7 +178,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Cgml.def" />
+    <None Include="ImageProcessor\Readme.md" />
     <None Include="Readme.md" />
+    <None Include="Utils\LZ4\LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ComLightLib\ComLightLib.vcxproj">

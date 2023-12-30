@@ -35,6 +35,12 @@
     <ClInclude Include="API\eDownloadFlag.h" />
     <ClInclude Include="Utils\tensorLoadTransforms.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ImageProcessor\iImageProcessor.h" />
+    <ClInclude Include="ImageProcessor\ImageProcessor.h" />
+    <ClInclude Include="ImageProcessor\WICTextureLoader11.h" />
+    <ClInclude Include="API\sImageProcessorParams.h" />
+    <ClInclude Include="Utils\LZ4\lz4.h" />
+    <ClInclude Include="D3D\tensorInterop.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -64,10 +70,17 @@
     <ClCompile Include="Utils\MemoryReader.cpp" />
     <ClCompile Include="Utils\downcastFloats.cpp" />
     <ClCompile Include="Utils\tensorLoadTransforms.cpp" />
+    <ClCompile Include="ImageProcessor\ImageProcessor.cpp" />
+    <ClCompile Include="ImageProcessor\ImageProcessor.decode.cpp" />
+    <ClCompile Include="ImageProcessor\ImageProcessor.shaders.cpp" />
+    <ClCompile Include="ImageProcessor\WICTextureLoader11.cpp" />
+    <ClCompile Include="Utils\LZ4\lz4.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Cgml.def" />
     <None Include="Readme.md" />
+    <None Include="ImageProcessor\Readme.md" />
+    <None Include="Utils\LZ4\LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Utils\NatvisFile.natvis" />

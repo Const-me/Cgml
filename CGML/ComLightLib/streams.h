@@ -26,9 +26,8 @@ namespace ComLight
 	{
 		DEFINE_INTERFACE_ID( "006af6db-734e-4595-8c94-19304b2389ac" );
 
-	private:
-		virtual HRESULT COMLIGHTCALL read( void* lpBuffer, int nNumberOfBytesToRead, int& lpNumberOfBytesRead ) = 0;
 	public:
+		virtual HRESULT COMLIGHTCALL read( void* lpBuffer, int nNumberOfBytesToRead, int& lpNumberOfBytesRead ) = 0;
 		virtual HRESULT COMLIGHTCALL seek( int64_t offset, eSeekOrigin origin ) = 0;
 		virtual HRESULT COMLIGHTCALL getPosition( int64_t& position ) = 0;
 		virtual HRESULT COMLIGHTCALL getLength( int64_t& length ) = 0;

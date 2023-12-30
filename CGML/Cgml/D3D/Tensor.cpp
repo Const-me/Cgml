@@ -2,6 +2,7 @@
 #include "Tensor.h"
 #include "tensorUtils.h"
 #include "createBuffer.h"
+#include "tensorInterop.h"
 using namespace Cgml;
 
 HRESULT Tensor::createImmutableRaw( ID3D11Device* device, const std::vector<uint32_t>& data )
@@ -266,4 +267,13 @@ HRESULT StagingTensor::download( ID3D11DeviceContext* context, pfnReadTensor pfn
 		return downloadImpl( context, pfn, pv, bufferStaging, (uint32_t)bytes );
 
 	return S_OK;
+}
+
+ID3D11UnorderedAccessView* Cgml::getTensorUav( iTensor* tensor )
+{
+	if( nullptr == tensor )
+		return nullptr;
+
+	Tensor* t = static_cast<Tensor*>( tensor );
+	return t->writeView();
 }
