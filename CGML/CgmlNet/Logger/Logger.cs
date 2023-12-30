@@ -55,4 +55,7 @@ public static class Logger
 		level = lvl;
 		Library.setLogSink( lvl, flags, sink );
 	}
+
+	/// <summary>True if messages of the specified level will be processed by the logger, and not discarded</summary>
+	public static bool willLogMessageOfLevel( eLogLevel lvl ) => lvl.willLog();
 }

@@ -119,6 +119,10 @@ public readonly struct Int128: IEquatable<Int128>
 	[IgnoreDataMember]
 	public uint2 xy => new uint2( x, y );
 
+	/// <summary>Make a 2D vector with [ y, z ] fields</summary>
+	[IgnoreDataMember]
+	public uint2 yz => new uint2( y, z );
+
 	/// <summary>Make a 2D vector with [ y, x ] fields</summary>
 	[IgnoreDataMember]
 	public uint2 yx => new uint2( y, x );

@@ -33,6 +33,12 @@ public static class TensorExt
 		tensor.getDesc( out sTensorDesc desc );
 		return desc.shape.size;
 	}
+	/// <summary>Get the shape of the tensor</summary>
+	public static TensorShape getShape( this iTensor tensor )
+	{
+		tensor.getDesc( out sTensorDesc desc );
+		return desc.shape;
+	}
 
 	/// <summary>Count of elements in the tensor</summary>
 	public static int countElements( this iTensor tensor )

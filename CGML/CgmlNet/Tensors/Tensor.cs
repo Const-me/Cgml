@@ -78,6 +78,18 @@ public sealed class Tensor: IDisposable
 		m_desc.shape = newShape;
 	}
 
+	/// <summary>Permute dimensions of the tensor</summary>
+	/// <remarks>Allows to implement transpositions and similar view-only operations on tensors</remarks>
+	public void permute( byte x, byte y, byte z, byte w )
+	{
+		if( null == m_native )
+			throw new NullReferenceException();
+
+		TensorShape newShape = m_desc.shape.permute( x, y, z, w );
+		m_native.view( ref newShape );
+		m_desc.shape = newShape;
+	}
+
 	/// <summary>Change tensor into another shape with the same count of elements, retaining the data</summary>
 	public void view( int x, int y, int z, int w ) =>
 		view( new Int128( x, y, z, w ) );

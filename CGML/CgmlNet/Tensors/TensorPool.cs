@@ -8,10 +8,13 @@ using System.Runtime.Intrinsics;
 /// Derived classes are expected to have a bunch of fields of type <see cref="Tensor" />.</remarks>
 public abstract class TensorPool: IDisposable
 {
+	/// <summary>List all tensors in this object</summary>
+	protected IEnumerable<Tensor?> listTensors() => pfnListTensors( this );
+
 	/// <summary>Release all tensors in the fields of the derived class</summary>
-	public void Dispose()
+	public virtual void Dispose()
 	{
-		foreach( Tensor? t in pfnListTensors( this ) )
+		foreach( Tensor? t in listTensors() )
 			t?.Dispose();
 	}
 
@@ -19,7 +22,7 @@ public abstract class TensorPool: IDisposable
 	public long getVideoMemoryUsage()
 	{
 		long res = 0;
-		foreach( Tensor? t in pfnListTensors( this ) )
+		foreach( Tensor? t in listTensors() )
 			res += t.getMemoryUse().GetElement( 1 );
 		return res;
 	}

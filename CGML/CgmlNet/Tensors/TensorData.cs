@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 
 /// <summary>Tensor data downloaded from VRAM for QA purposes</summary>
+/// <remarks>Another way to create this is with <c>TorchLoader</c> library,
+/// by loading a ZIP file made with <c>torch.save</c> Python function.</remarks>
 public readonly struct TensorData
 {
 	/// <summary>Describes size and memory layout of a tensor in VRAM</summary>
@@ -17,7 +19,8 @@ public readonly struct TensorData
 		this.data = data;
 	}
 
-	ReadOnlySpan<byte> getBytes()
+	/// <summary>Bit-cast the stored payload array into a span of bytes</summary>
+	public ReadOnlySpan<byte> getBytes()
 	{
 		if( desc.layout != eTensorLayout.Dense )
 			throw new NotImplementedException();
@@ -39,7 +42,7 @@ public readonly struct TensorData
 	public TensorsDiff diff( in TensorData that )
 	{
 		if( desc.shape.size != that.desc.shape.size )
-			throw new ArgumentException( "Size is different" );
+			throw new ArgumentException( $"{desc.shape.description()} != {that.desc.shape.description()}" );
 		if( data.Length != that.data.Length )
 			throw new ArgumentException( "Array length is different" );
 

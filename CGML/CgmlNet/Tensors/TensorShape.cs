@@ -32,7 +32,7 @@ public readonly struct TensorShape: IEquatable<TensorShape>
 	{
 		if( isVector )
 			return $"Vector [ {size.ToScalar()} ]";
-		else if( isMatrix )
+		if( isMatrix )
 		{
 			if( 1 == stride.ToScalar() )
 				return $"Matrix [ {size.ToScalar()}, {size.GetElement( 1 )} ], row major";
@@ -42,6 +42,18 @@ public readonly struct TensorShape: IEquatable<TensorShape>
 				return $"Matrix [ {size.ToScalar()}, {size.GetElement( 1 )} ]";
 		}
 		return $"Size {size}, strides {stride}";
+	}
+
+	/// <summary>Shorter human-readable string</summary>
+	public string description()
+	{
+		if( isVector )
+			return $"Vector [ {size.x} ]";
+		if( isMatrix )
+			return $"Matrix [ {size.x}, {size.y} ]";
+		if( size.w == 1 )
+			return $"Tensor [ {size.x}, {size.y}, {size.z} ]";
+		return $"Tensor {size}";
 	}
 
 	TensorShape( Vector128<int> size, Vector128<int> stride )

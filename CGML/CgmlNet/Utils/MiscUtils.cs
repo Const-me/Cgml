@@ -49,6 +49,14 @@ public static class MiscUtils
 				unit = "GB";
 			}
 		}
+
+		public override string ToString()
+		{
+			if( unit == "bytes" )
+				return $"{(int)size} bytes";
+			else
+				return $"{size:F1} {unit}";
+		}
 	}
 
 	/// <summary>A string with printed memory use</summary>
@@ -56,14 +64,14 @@ public static class MiscUtils
 	{
 		PrintedSize ram = new PrintedSize( vec.ToScalar() );
 		PrintedSize vram = new PrintedSize( vec.GetElement( 1 ) );
-		return $"{ram.size:F1} {ram.unit} RAM, {vram.size:F1} {vram.unit} VRAM";
+		return $"{ram} RAM, {vram} VRAM";
 	}
 
 	/// <summary>A string with printed memory use</summary>
 	public static string printMemoryUse( long bytes )
 	{
 		PrintedSize ps = new PrintedSize( bytes );
-		return $"{ps.size:F1} {ps.unit}";
+		return ps.ToString();
 	}
 
 	/// <summary>Accumulate memory use of the tensor in the dictionary</summary>
