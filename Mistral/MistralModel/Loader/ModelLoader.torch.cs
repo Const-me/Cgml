@@ -35,7 +35,8 @@ public static partial class ModelLoader
 			return eTensorLayout.Dense;
 		}
 
-		public override eLoadTransform tensorLoadTransform() => eLoadTransform.Fp16MakeIeee;
+		public override eLoadTransform tensorLoadTransform( eDataType storedType, string key ) =>
+			eLoadTransform.Fp16MakeIeee;
 	}
 
 	static void dbgSummarizeTensors( IReadOnlyDictionary<string, iTensor> dict )
