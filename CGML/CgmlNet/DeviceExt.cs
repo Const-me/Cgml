@@ -1,4 +1,5 @@
 ﻿namespace Cgml;
+using System.Runtime.InteropServices;
 
 /// <summary>Extension methods for <see cref="iDevice" /> COM interface</summary>
 public static class DeviceExt
@@ -26,5 +27,23 @@ public static class DeviceExt
 			layout = eTensorLayout.Dense
 		};
 		return dev.createTensor( ref desc );
+	}
+
+	/// <summary>Create immutable FP16 tensor with GELU lookup table, in FP16 precision</summary>
+	public static iTensor computeGeluLookup( this iDevice dev )
+	{
+		ushort[] table = new ushort[ 0x10000 ];
+		Library.computeGeluLookup( table );
+
+		sTensorDesc desc = new sTensorDesc
+		{
+			shape = TensorShape.rowMajor( 0x10000 ),
+			dataType = eDataType.FP16,
+			usage = eBufferUse.Immutable,
+			layout = eTensorLayout.Dense
+		};
+
+		ReadOnlySpan<byte> bytes = MemoryMarshal.Cast<ushort, byte>( table );
+		return dev.uploadImmutableTensor( desc, bytes );
 	}
 }

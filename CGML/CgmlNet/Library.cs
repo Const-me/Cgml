@@ -106,4 +106,7 @@ public static class Library
 			}
 		}
 	}
+
+	[DllImport( dll, CallingConvention = CallingConvention.StdCall )]
+	internal static extern void computeGeluLookup( [Out, MarshalAs( UnmanagedType.LPArray, SizeConst = 0x10000 )] ushort[] table );
 }

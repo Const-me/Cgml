@@ -4,6 +4,7 @@ EXPORTS listGPUs
 EXPORTS createDeviceAndContext
 
 EXPORTS downcastFloats
+EXPORTS computeGeluLookup
 EXPORTS isAllZero
 
 EXPORTS dbgTensorsDiff

@@ -75,6 +75,7 @@
     <ClCompile Include="ImageProcessor\ImageProcessor.shaders.cpp" />
     <ClCompile Include="ImageProcessor\WICTextureLoader11.cpp" />
     <ClCompile Include="Utils\LZ4\lz4.c" />
+    <ClCompile Include="Utils\computeGeluLookup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Cgml.def" />
