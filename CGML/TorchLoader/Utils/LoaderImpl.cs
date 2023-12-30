@@ -67,6 +67,45 @@ sealed class LoaderImpl: iWeightsLoader
 		return res;
 	}
 
+	/// <summary>True when all tensors on the list are duplicates:
+	/// same shape, same data type, and the length matches the length of the ZIP entry</summary>
+	bool isDuplicateTensors( long entryLength, List<PendingTensor> list )
+	{
+		PendingTensor first = list[ 0 ];
+		if( first.payloadBytes != entryLength )
+			return false;
+
+		for( int i = 1; i < list.Count; i++ )
+		{
+			PendingTensor pt = list[ i ];
+			if( pt.payloadBytes != entryLength )
+				return false;
+			if( pt.tensor.storage.dataType != first.tensor.storage.dataType )
+				return false;
+			if( pt.tensor.shape != first.tensor.shape )
+				return false;
+		}
+		return true;
+	}
+
+	void tryLoadDupes( Stream stream, long entryLength, List<PendingTensor> list )
+	{
+		if( isDuplicateTensors( entryLength, list ) )
+		{
+			PendingTensor pt = list[ 0 ];
+			loadTensor( stream, pt.tensor, pt.key, pt.payloadBytes );
+			iTensor tensor = tensors[ pt.key ];
+			for( int i = 1; i < list.Count; i++ )
+				tensors.Add( list[ i ].key, tensor );
+
+			// Log a warning message
+			string str = string.Join( ", ", list.Select( pt => pt.key ) );
+			Logger.Warning( $"Detected duplicate tensors: {str}" );
+			return;
+		}
+		throw new ArgumentException( "Unexpected entry length" );
+	}
+
 	void loadTensors( ZipArchiveEntry entry, LoadMap map )
 	{
 		string name = entry.Name;
@@ -75,12 +114,14 @@ sealed class LoaderImpl: iWeightsLoader
 		map.Remove( name );
 
 		int cb = list.Sum( pt => pt.payloadBytes );
-		if( cb != entry.Length )
-			throw new ArgumentException( "Unexpected entry length" );
-
-		using var stream = entry.Open();
-		foreach( PendingTensor pt in list )
-			loadTensor( stream, pt.tensor, pt.key, pt.payloadBytes );
+		using Stream stream = entry.Open();
+		if( cb == entry.Length )
+		{
+			foreach( PendingTensor pt in list )
+				loadTensor( stream, pt.tensor, pt.key, pt.payloadBytes );
+		}
+		else
+			tryLoadDupes( stream, entry.Length, list );
 	}
 
 	static IEnumerable<(ZipArchive, string)> metadataSource( ZipArchives zip, string[] subdirs )
@@ -101,7 +142,7 @@ sealed class LoaderImpl: iWeightsLoader
 		Dictionary<string, Tensor> metadata = MetadataLoader.load( zip, $"{subdir}/data.pkl" );
 		subdir = $"{subdir}/data/";
 
-		var ordered = makeLoadMap( metadata );
+		LoadMap ordered = makeLoadMap( metadata );
 
 		foreach( ZipArchiveEntry entry in zip.Entries )
 		{
@@ -270,7 +311,7 @@ sealed class LoaderImpl: iWeightsLoader
 		desc.dataType = tensor.storage.dataType;
 		desc.usage = eBufferUse.Immutable;
 		desc.layout = traits.tensorVramLayout( key );
-		eLoadTransform tform = traits.tensorLoadTransform();
+		eLoadTransform tform = traits.tensorLoadTransform( tensor.storage.dataType, key );
 		tensors[ key ] = device.loadImmutableTensor( ref desc, stream, byteWidth, tform );
 	}
 
@@ -316,9 +357,9 @@ sealed class LoaderImpl: iWeightsLoader
 			desc.shape = tensors[ 0 ].shape;
 		else throw new NotImplementedException();
 
-		var tform = traits.tensorLoadTransform();
+		var tform = traits.tensorLoadTransform( desc.dataType, key );
 		if( tform != eLoadTransform.None )
-			throw new NotImplementedException();	// Need to adjust that API as well
+			throw new NotImplementedException();    // Need to adjust that API as well
 
 		this.tensors[ key ] = device.uploadImmutableTensor( desc, payload );
 	}

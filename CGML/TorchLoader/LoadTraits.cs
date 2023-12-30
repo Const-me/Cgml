@@ -8,8 +8,8 @@ public abstract class LoadTraits
 	public virtual eTensorLayout tensorVramLayout( string key ) =>
 		eTensorLayout.Dense;
 
-	/// <summary>Override this method to specify load transformation for all tensors in the model</summary>
-	public virtual eLoadTransform tensorLoadTransform() => eLoadTransform.None;
+	/// <summary>Override this method to specify load transformation for the tensor in the model</summary>
+	public virtual eLoadTransform tensorLoadTransform( eDataType storedType, string key ) => eLoadTransform.None;
 
 	/// <summary>Merge action to combine tensors from different ZIP archives</summary>
 	/// <remarks>Llama-13B model contains 2 of them, Llama-30B model contains 4</remarks>
