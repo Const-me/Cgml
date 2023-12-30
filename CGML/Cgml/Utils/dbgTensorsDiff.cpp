@@ -302,6 +302,7 @@ namespace
 	};
 }
 
+// When called from dbgCompareTensor() C# method, `a` is from VRAM, `b` is from the ZIP file
 HRESULT dbgTensorsDiff( TensorsDiff& rdi, const uint8_t* a, const sTensorBuffer& aDesc, const uint8_t* b, const sTensorBuffer& bDesc )
 {
 	if( aDesc.desc.layout != eTensorLayout::Dense || bDesc.desc.layout != eTensorLayout::Dense )

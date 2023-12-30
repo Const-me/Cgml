@@ -26,6 +26,7 @@ bool DirectCompute::initializeRenderDoc()
 	if( nullptr == api )
 		return false;
 
+	logDebug( u8"Detected RenderDoc debugger, and initialized the integration" );
 	return true;
 }
 
@@ -49,6 +50,7 @@ CaptureRaii::CaptureRaii( ID3D11Device* dev )
 
 	api->StartFrameCapture( dev, nullptr );
 	device = dev;
+	logDebug( u8"RenderDoc capture started" );
 }
 
 CaptureRaii::~CaptureRaii()
@@ -57,6 +59,7 @@ CaptureRaii::~CaptureRaii()
 		return;
 	api->EndFrameCapture( device, nullptr );
 	device = nullptr;
+	logDebug( u8"RenderDoc capture completed" );
 }
 #else	// !ENABLE_RENDERDOC_DEBUGGER
 bool DirectCompute::initializeRenderDoc()
