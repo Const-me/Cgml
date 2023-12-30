@@ -21,3 +21,6 @@ Mistral/MistralChat/obj/
 Mistral/MistralChat/bin/
 CGML/Cgml/Resource.aps
 Mistral/MistralChat/Properties/launchSettings.json
+CGML/ImageProcessor/ImageShadersPack/obj/
+CGML/ImageProcessor/ImageShadersPack/bin/
+CGML/Cgml/ImageProcessor/Generated/shaders-Debug.inl
