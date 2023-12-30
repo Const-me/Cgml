@@ -1,5 +1,6 @@
 ﻿namespace Cgml;
 using ComLight;
+using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
@@ -49,6 +50,12 @@ public interface iContext: IDisposable
 
 	/// <summary>Download tensor data from VRAM to system memory</summary>
 	void download( iTensor tensor, [MarshalAs( UnmanagedType.FunctionPtr )] pfnReadTensorUnsafe? pfn, IntPtr pv, eDownloadFlag flag );
+
+	/// <summary>Load image, resize, and convert to FP32 tensor with 3 channels</summary>
+	/// <remarks>The input stream must support random access, random seeks, and length queries.<br/>
+	/// To load images from compressed, encrypted or network streams, read into MemoryStream first.</remarks>
+	void loadImage( iTensor result, [In] ref sImageProcessorParams ipp, [ReadStream] Stream stream,
+		[Out, MarshalAs( UnmanagedType.LPArray )] uint[]? previewPixels = null );
 
 	/// <summary>Begin a profiler block</summary>
 	void profilerBlockStart( ushort id );

@@ -3,6 +3,7 @@
 #include "profiler.h"
 #include "../../ComLightLib/streams.h"
 #include "eDownloadFlag.h"
+#include "sImageProcessorParams.h"
 
 namespace Cgml
 {
@@ -24,6 +25,8 @@ namespace Cgml
 
 		// Download tensor data from VRAM to system memory
 		virtual HRESULT COMLIGHTCALL download( iTensor* tensor, pfnReadTensor pfn, void* pv, eDownloadFlag flag ) = 0;
+
+		virtual HRESULT COMLIGHTCALL loadImage( iTensor* result, const sImageProcessorParams& ipp, ComLight::iReadStream* stream, uint32_t* previewPixels ) = 0;
 
 		virtual HRESULT COMLIGHTCALL profilerBlockStart( uint16_t id ) = 0;
 		virtual HRESULT COMLIGHTCALL profilerBlockEnd() = 0;

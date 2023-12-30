@@ -3,6 +3,7 @@
 #include "../../ComLightLib/comLightServer.h"
 #include "ConstantBuffersPool.h"
 #include "../Utils/Profiler/GpuProfiler.h"
+#include "../ImageProcessor/iImageProcessor.h"
 
 namespace Cgml
 {
@@ -16,6 +17,7 @@ namespace Cgml
 		uint8_t boundUavs = 0;
 		uint8_t boundSrvs = 0;
 		GpuProfiler profiler;
+		// std::unique_ptr<iImageProcessor> imageProcessor;
 
 		// Copy the entire contents of the source tensor to the destination tensor using the GPU
 		HRESULT COMLIGHTCALL copy( iTensor* destination, iTensor* source ) noexcept override final;
@@ -51,6 +53,8 @@ namespace Cgml
 		}
 
 		HRESULT COMLIGHTCALL writeTensorData( iTensor* tensor, ComLight::iWriteStream* stream ) noexcept override final;
+
+		HRESULT COMLIGHTCALL loadImage( iTensor* result, const sImageProcessorParams& ipp, ComLight::iReadStream* stream, uint32_t* previewPixels ) noexcept override final;
 
 	public:
 		Context( ID3D11Device* dev, ID3D11DeviceContext* ctx, size_t queueLength, bool powerSaver ) :

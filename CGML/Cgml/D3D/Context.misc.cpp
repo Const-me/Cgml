@@ -42,3 +42,10 @@ HRESULT COMLIGHTCALL Context::createComputeShaders( int count, const std::pair<i
 
 	return S_OK;
 }
+
+HRESULT COMLIGHTCALL Context::loadImage( iTensor* result, const sImageProcessorParams& ipp, ComLight::iReadStream* stream, uint32_t* previewPixels ) noexcept
+{
+	std::unique_ptr<iImageProcessor> imageProcessor;
+	CHECK( iImageProcessor::create( imageProcessor, device, context, constantBuffers ) );
+	return imageProcessor->loadImage( result, ipp, stream, previewPixels );
+}
