@@ -131,7 +131,7 @@ sealed class LoaderImpl: iWeightsLoader
 	/// <summary>Load tensor[s] from a ZIP entry which has paddings around or between the payloads of the tensors</summary>
 	/// <remarks>Implemented for <c>model.norm.weight</c> tensor inside <c>Mistral-7B-Instruct-v0.2/pytorch_model-00003-of-00003.bin</c> ZIP file.<br/>
 	/// That tensor has 8kb of data in 500MB ZIP entry, without other tensors in the entry.</remarks>
-	void loadPadded( Stream stream, long entryLength, List<PendingTensor> list )
+	void loadPadded( Stream stream, List<PendingTensor> list, ZipArchiveEntry entry, string zipName )
 	{
 		eDataType dt = list[ 0 ].tensor.storage.dataType;
 		int cbElement = dt.elementSize();
@@ -148,6 +148,7 @@ sealed class LoaderImpl: iWeightsLoader
 				throw new ArgumentException( "Overlapped tensors in a single ZIP entry" );
 		}
 
+		long entryLength = entry.Length;
 		{
 			PendingTensor last = list[ list.Count - 1 ];
 			int lastEnd = tensorSliceEnd( last );
@@ -173,9 +174,13 @@ sealed class LoaderImpl: iWeightsLoader
 			loadTensor( stream, pt.tensor, pt.key, payloadBytes );
 			off += payloadBytes;
 		}
+
+		string wasted = Cgml.MiscUtils.printMemoryUse( entryLength - list.Sum( pt => pt.payloadBytes ) );
+		string tensors = string.Join( ", ", list.Select( pt => pt.key ) );
+		Logger.Warning( $"{wasted} unused data in {zipName}/{entry.FullName}: {tensors}" );
 	}
 
-	void loadTensors( ZipArchiveEntry entry, LoadMap map )
+	void loadTensors( ZipArchiveEntry entry, LoadMap map, string zipName )
 	{
 		string name = entry.Name;
 		if( !map.TryGetValue( name, out var list ) )
@@ -194,7 +199,7 @@ sealed class LoaderImpl: iWeightsLoader
 		if( tryLoadDupes( stream, entry.Length, list ) )
 			return;
 
-		loadPadded( stream, entry.Length, list );
+		loadPadded( stream, list, entry, zipName );
 	}
 
 	static IEnumerable<(ZipArchive, string)> metadataSource( ZipArchives zip, string[] subdirs )
@@ -224,7 +229,7 @@ sealed class LoaderImpl: iWeightsLoader
 			if( !fullName.StartsWith( subdir ) )
 				continue;
 
-			loadTensors( entry, ordered );
+			loadTensors( entry, ordered, Path.GetFileName( path ) );
 		}
 
 		if( ordered.Count > 0 )
