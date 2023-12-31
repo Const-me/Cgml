@@ -29,6 +29,8 @@
     <FxCompile Include="rotaryEmbedding.fp1.hlsl" />
     <FxCompile Include="rotaryEmbedding.fp2.hlsl" />
     <FxCompile Include="rowMatProductFixed.hlsl" />
+    <FxCompile Include="sampleAll.hlsl" />
+    <FxCompile Include="sampleAll.fp1.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="miscUtils.hlsli" />

@@ -558,6 +558,27 @@ readonly partial struct Context
 		return res;
 	}
 
+	/// <summary><c>torch.multinomial</c></summary>
+	public Tensor sampleAll( Tensor logits, Random rand )
+	{
+		Int128 size = logits.size;
+		Int128 stride = logits.stride;
+		if( size.yzw != new uint3( 1, 1, 1 ) || stride.x != 1 )
+			throw new ArgumentException();
+
+		Tensor res = makeUintTensor( ref temp.topP, 1, 1, eBufferUse.ReadWriteDownload );
+		double r = rand.NextDouble();
+		ConstantBuffers.sampleAll cb = new ConstantBuffers.sampleAll
+		{
+			width = (uint)size.x,
+			rand = (float)r,
+			rand64 = (uint2)r,
+		};
+		context.sampleAll( cb, res.native, logits.native );
+		context.dispatch( 1 );
+		return res;
+	}
+
 	/// <summary>next_token = torch.argmax(logprobs[:, -1,:], dim=-1)</summary>
 	public Tensor sampleMax( Tensor logits )
 	{
