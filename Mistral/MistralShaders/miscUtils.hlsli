@@ -13,7 +13,7 @@ inline uint hadd( uint3 v )
 }
 
 #ifndef USE_BF16
-#define USE_BF16 1
+#define USE_BF16 0
 #endif
 
 #if USE_BF16
@@ -64,40 +64,42 @@ inline float load( RWBuffer<float> t, uint idx )
 // This function rounds FP32 value to the nearest FP16, using bankers rounding
 // When GPUs are converting FP32 to FP16, they always truncate towards 0, documented there:
 // https://learn.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion#conververting-from-a-higher-range-representation-to-a-lower-range-representation
-inline float roundFp16Nearest( const float src )
+inline float roundFp16Nearest( float src )
 {
-	const uint trunc16 = f32tof16( src );
-	const float trunc32 = f16tof32( trunc16 );
-
-	const uint truncExp = ( trunc16 >> 10 ) & 0x1F;
-	if( truncExp != 0x1F )
+	[branch]
+	if( abs( src ) < 65520.0f )
 	{
-		const uint next16 = trunc16 + 1;
-		const float next32 = f16tof32( next16 );
+		const uint truncatedFp16 = f32tof16( src );
+		const float truncated = f16tof32( truncatedFp16 );
+		const float next = f16tof32( truncatedFp16 + 1 );
 
-		const float errTrunc = abs( src - trunc32 );
-		const float errNext = abs( src - next32 );
+		const float errTrunc = abs( src - truncated );
+		const float errNext = abs( src - next );
 
 		if( errTrunc < errNext )
 		{
 			// Truncated was closer to the source
-			return trunc32;
+			return truncated;
 		}
 		else if( errTrunc > errNext )
 		{
 			// Truncated + 1 was closer to the source
-			return next32;
+			return next;
 		}
 		else
 		{
 			// Exactly half, doing banker's rounding to nearest even
-			return ( 0 == ( trunc16 & 1 ) ) ? trunc32 : next32;
+			return ( 0 == ( truncatedFp16 & 1 ) ) ? truncated : next;
 		}
 	}
 	else
 	{
-		// INF or NAN
-		return src;
+		// Return +inf or -inf depending on the sign bit of the input
+		// Note this destroys NAN values, converting them to inf as well
+		uint u = asuint( src );
+		u &= 0x80000000u;
+		u |= 0x7f800000u;
+		return asfloat( u );
 	}
 }
 
