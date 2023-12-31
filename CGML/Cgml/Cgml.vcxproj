@@ -87,6 +87,7 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>Cgml.def</ModuleDefinitionFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <DelayLoadDLLs>MFPlat.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
