@@ -181,6 +181,7 @@
     <None Include="groupReduce.hlsli" />
     <None Include="miscUtils.hlsli" />
     <None Include="Readme.md" />
+    <None Include="rmsNormImpl.hlsli" />
     <None Include="rowMatCompressedV1.hlsli" />
     <None Include="rowMatCompressedV2.hlsli" />
   </ItemGroup>
