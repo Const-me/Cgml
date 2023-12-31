@@ -76,10 +76,10 @@ void main( uint thread : SV_GroupIndex )
 	sumBuffer[ thread ] = storeDouble( acc );
 	maxValues[ thread ] = maxVal;
 	maxIndices[ thread ] = maxIndex;
-	GroupMemoryBarrierWithGroupSync();
 
 	for( i = THREADS / 2; i != 0; i /= 2 )
 	{
+		GroupMemoryBarrierWithGroupSync();
 		[branch]
 		if( thread < i )
 		{
@@ -98,7 +98,6 @@ void main( uint thread : SV_GroupIndex )
 				maxIndices[ thread ] = maxIndex;
 			}
 		}
-		GroupMemoryBarrierWithGroupSync();
 	}
 
 	// The rest of the algorithm only runs on 1 thread
