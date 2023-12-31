@@ -23,19 +23,6 @@ sealed class LoaderImpl: iWeightsLoader
 		tensors.Clear();
 	}
 
-	readonly struct PendingTensor: IComparable<PendingTensor>
-	{
-		public string key { get; init; }
-		public Tensor tensor { get; init; }
-		public override string ToString() => $"\"{key}\": {tensor}";
-
-		public int payloadBytes =>
-			tensor.shape.countElements() * tensor.storage.dataType.elementSize();
-
-		public int CompareTo( PendingTensor other ) =>
-			tensor.offset.CompareTo( other.tensor.offset );
-	}
-
 	// Tensors from the same binary file in the ZIP, in the order they were present in the unpickled metadata
 	// Key = zip entry name
 	sealed class LoadMap: Dictionary<string, List<PendingTensor>> { }
@@ -88,7 +75,9 @@ sealed class LoaderImpl: iWeightsLoader
 		return true;
 	}
 
-	void tryLoadDupes( Stream stream, long entryLength, List<PendingTensor> list )
+	/// <summary>When all tensors on the list are duplicates, load one of them,
+	/// set multiple output dictionary entries into the same object, and log warning about it.</summary>
+	bool tryLoadDupes( Stream stream, long entryLength, List<PendingTensor> list )
 	{
 		if( isDuplicateTensors( entryLength, list ) )
 		{
@@ -101,9 +90,89 @@ sealed class LoaderImpl: iWeightsLoader
 			// Log a warning message
 			string str = string.Join( ", ", list.Select( pt => pt.key ) );
 			Logger.Warning( $"Detected duplicate tensors: {str}" );
+			return true;
+		}
+		return false;
+	}
+
+	static int tensorSliceEnd( in PendingTensor pt )
+	{
+		int elts = pt.tensor.offset + pt.tensor.shape.countElements();
+		return elts * pt.tensor.storage.dataType.elementSize();
+	}
+
+	/// <summary>Advance the stream forward by the specified count of bytes</summary>
+	static void skipBytes( Stream stream, int count )
+	{
+		if( count < 0 )
+			throw new ArgumentOutOfRangeException();
+		if( 0 == count )
+			return;
+
+		if( stream.CanSeek )
+		{
+			stream.Seek( count, SeekOrigin.Current );
 			return;
 		}
-		throw new ArgumentException( "Unexpected entry length" );
+
+		// Seek anyway, by reading and then discarding bytes from the stream
+		const int maxBufferSize = 1024 * 16;
+		byte[] buffer = new byte[ Math.Min( maxBufferSize, count ) ]; // You can adjust the buffer size as needed
+		while( count > 0 )
+		{
+			int requested = Math.Min( buffer.Length, count );
+			int received = stream.Read( buffer, 0, requested );
+			if( 0 == received )
+				throw new EndOfStreamException();
+			count -= received;
+		}
+	}
+
+	/// <summary>Load tensor[s] from a ZIP entry which has paddings around or between the payloads of the tensors</summary>
+	/// <remarks>Implemented for <c>model.norm.weight</c> tensor inside <c>Mistral-7B-Instruct-v0.2/pytorch_model-00003-of-00003.bin</c> ZIP file.<br/>
+	/// That tensor has 8kb of data in 500MB ZIP entry, without other tensors in the entry.</remarks>
+	void loadPadded( Stream stream, long entryLength, List<PendingTensor> list )
+	{
+		eDataType dt = list[ 0 ].tensor.storage.dataType;
+		int cbElement = dt.elementSize();
+		for( int i = 1; i < list.Count; i++ )
+		{
+			PendingTensor curr = list[ i ];
+			if( curr.tensor.storage.dataType != dt )
+				throw new ArgumentException( "A single ZIP entry contains tensors of different data types. This is not supported" );
+
+			PendingTensor prev = list[ i - 1 ];
+			int prevEnd = tensorSliceEnd( prev );
+			int currBegin = cbElement * curr.tensor.offset;
+			if( prevEnd > currBegin )
+				throw new ArgumentException( "Overlapped tensors in a single ZIP entry" );
+		}
+
+		{
+			PendingTensor last = list[ list.Count - 1 ];
+			int lastEnd = tensorSliceEnd( last );
+			if( lastEnd > entryLength )
+				throw new ArgumentException( $"ZIP entry is {entryLength} bytes, metadata says the last tensor in that entry ends at offset {lastEnd}" );
+		}
+
+		// Things are good so far, load these tensors
+		int off = 0;
+		foreach( PendingTensor pt in list )
+		{
+			int begin = cbElement * pt.tensor.offset;
+			if( begin < off )
+				throw new ApplicationException();
+
+			if( begin > off )
+			{
+				skipBytes( stream, begin - off );
+				off = begin;
+			}
+
+			int payloadBytes = pt.payloadBytes;
+			loadTensor( stream, pt.tensor, pt.key, payloadBytes );
+			off += payloadBytes;
+		}
 	}
 
 	void loadTensors( ZipArchiveEntry entry, LoadMap map )
@@ -119,9 +188,13 @@ sealed class LoaderImpl: iWeightsLoader
 		{
 			foreach( PendingTensor pt in list )
 				loadTensor( stream, pt.tensor, pt.key, pt.payloadBytes );
+			return;
 		}
-		else
-			tryLoadDupes( stream, entry.Length, list );
+
+		if( tryLoadDupes( stream, entry.Length, list ) )
+			return;
+
+		loadPadded( stream, entry.Length, list );
 	}
 
 	static IEnumerable<(ZipArchive, string)> metadataSource( ZipArchives zip, string[] subdirs )
@@ -133,7 +206,7 @@ sealed class LoaderImpl: iWeightsLoader
 		}
 	}
 
-	public void loadSingle( string path )
+	void loadSingle( string path, bool waitForCompressor )
 	{
 		using Stream zipStream = File.OpenRead( path );
 		using ZipArchive zip = new ZipArchive( zipStream, ZipArchiveMode.Read );
@@ -157,8 +230,11 @@ sealed class LoaderImpl: iWeightsLoader
 		if( ordered.Count > 0 )
 			throw new ApplicationException( "Some tensors were mentioned in the metadata, but the weights were not found in the ZIP" );
 
-		device.waitForWeightsCompressor();
+		if( waitForCompressor )
+			device.waitForWeightsCompressor();
 	}
+	void iWeightsLoader.loadSingle( string path ) =>
+		loadSingle( path, true );
 
 	void verifyMerge( Dictionary<string, Tensor>[] metadata, LoadMap[] maps )
 	{
@@ -185,7 +261,7 @@ sealed class LoaderImpl: iWeightsLoader
 	{
 		if( 1 == arr.Length )
 		{
-			loadSingle( arr[ 0 ] );
+			loadSingle( arr[ 0 ], true );
 			return;
 		}
 
@@ -362,5 +438,25 @@ sealed class LoaderImpl: iWeightsLoader
 			throw new NotImplementedException();    // Need to adjust that API as well
 
 		this.tensors[ key ] = device.uploadImmutableTensor( desc, payload );
+	}
+
+	void iWeightsLoader.loadTransformer( TransformerIndex index )
+	{
+		try
+		{
+			foreach( string path in index.listDataFiles() )
+				loadSingle( path, false );
+		}
+		catch
+		{
+			foreach( iTensor i in tensors.Values )
+				i.Dispose();
+			tensors.Clear();
+			throw;
+		}
+		finally
+		{
+			device.waitForWeightsCompressor();
+		}
 	}
 }

@@ -12,4 +12,7 @@ public interface iWeightsLoader: IDisposable
 
 	/// <summary>Merge tensors from multiple ZIP archives</summary>
 	void loadMultipart( string[] sources );
+
+	/// <summary>Load all tensors listed in the index file</summary>
+	void loadTransformer( TransformerIndex index );
 }
