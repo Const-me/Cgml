@@ -559,10 +559,10 @@ readonly partial struct Context
 	}
 
 	/// <summary><c>torch.multinomial</c></summary>
-	public Tensor sampleAll( Tensor logits, Random rand )
+	public Tensor sampleAll( Tensor probs, Random rand )
 	{
-		Int128 size = logits.size;
-		Int128 stride = logits.stride;
+		Int128 size = probs.size;
+		Int128 stride = probs.stride;
 		if( size.yzw != new uint3( 1, 1, 1 ) || stride.x != 1 )
 			throw new ArgumentException();
 
@@ -574,8 +574,29 @@ readonly partial struct Context
 			rand = (float)r,
 			rand64 = (uint2)r,
 		};
-		context.sampleAll( cb, res.native, logits.native );
+		context.sampleAll( cb, res.native, probs.native );
 		context.dispatch( 1 );
+		return res;
+	}
+
+	public Tensor sampleTopK( Tensor logits, int topK, Random rand )
+	{
+		Int128 size = logits.size;
+		Int128 stride = logits.stride;
+		if( size.yzw != new uint3( 1, 1, 1 ) || stride.x != 1 )
+			throw new ArgumentException();
+
+		Tensor temp = makeUintTensor( ref this.temp.topPCounters, 0x8000, 1 );
+		Tensor res = makeUintTensor( ref this.temp.topP, 1, 1, eBufferUse.ReadWriteDownload );
+		var cb = new ConstantBuffers.sampleTopK
+		{
+			width = (uint)size.x,
+			topK = (uint)topK,
+			rand = rand.NextSingle(),
+		};
+		context.sampleTopK( cb, temp.native, res.native, logits.native );
+		context.dispatch( 1 );
+
 		return res;
 	}
 

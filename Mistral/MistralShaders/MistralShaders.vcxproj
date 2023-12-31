@@ -172,6 +172,7 @@
     <FxCompile Include="sampleAll.fp1.hlsl" />
     <FxCompile Include="sampleAll.hlsl" />
     <FxCompile Include="sampleMax.hlsl" />
+    <FxCompile Include="sampleTopK.hlsl" />
     <FxCompile Include="sampleTopP.hlsl" />
     <FxCompile Include="silu.hlsl" />
     <FxCompile Include="softMax.hlsl" />
