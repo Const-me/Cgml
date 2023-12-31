@@ -21,6 +21,15 @@ public readonly struct uint2: IEquatable<uint2>
 		this.y = (uint)y;
 	}
 
+	/// <summary>Bitcast FP64 number into <c>uint2</c> structure</summary>
+	public static explicit operator uint2( double fp64 )
+	{
+		ulong u = BitConverter.DoubleToUInt64Bits( fp64 );
+		uint low = unchecked((uint)( u ));
+		uint high = (uint)( u >> 32 );
+		return new uint2( low, high );
+	}
+
 	/// <summary>String representation for debugger</summary>
 	public override string ToString() => $"[ {x}, {y} ]";
 
