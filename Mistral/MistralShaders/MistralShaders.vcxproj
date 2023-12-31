@@ -184,6 +184,7 @@
     <None Include="rmsNormImpl.hlsli" />
     <None Include="rowMatCompressedV1.hlsli" />
     <None Include="rowMatCompressedV2.hlsli" />
+    <None Include="softMaxImpl.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

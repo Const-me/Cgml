@@ -38,5 +38,6 @@
     <None Include="rowMatCompressedV2.hlsli" />
     <None Include="Readme.md" />
     <None Include="rmsNormImpl.hlsli" />
+    <None Include="softMaxImpl.hlsli" />
   </ItemGroup>
 </Project>
