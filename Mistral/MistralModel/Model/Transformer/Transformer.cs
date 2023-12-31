@@ -18,7 +18,7 @@ sealed class Transformer: IDisposable
 	TemporaryTensors temp = new TemporaryTensors();
 
 	/// <summary>Construct from the original Python model</summary>
-	public Transformer( in Device dev, ParamsJson p, Dictionary<string, iTensor> tensors )
+	public Transformer( ParamsJson p, Dictionary<string, iTensor> tensors )
 	{
 		layers = new TransformerBlock[ p.n_layers ];
 		parameters = new Parameters( p );
@@ -32,6 +32,9 @@ sealed class Transformer: IDisposable
 
 		tensors.Clear();
 	}
+
+	public void afterLoadFix() =>
+		parameters.afterLoadFix();
 
 	/// <summary>Initialize the context structure, which implements these ML algorithms and caches GPU buffers</summary>
 	public Context context( in Device dev, PerformanceParams perfParams )

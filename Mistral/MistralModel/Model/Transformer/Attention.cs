@@ -40,7 +40,8 @@ sealed class Attention: IDisposable
 		xv.view( ctx.parameters.headDim, ctx.parameters.countKVHeads, xv.size.y, xv.size.z ); ;
 
 		// xq, xk = apply_rotary_emb(xq, xk, freqs_cis=freqs_cis)
-		ctx.rotaryEmbedding( xq, xk, cacheMetadata.absolute, ctx.parameters.minusHalfDimMul );
+		float theta = ctx.parameters.ropeTheta;
+		ctx.rotaryEmbedding( xq, xk, cacheMetadata.absolute, ctx.parameters.minusHalfDimMul, theta );
 		// ctx.dbgCompareTensor( xq, "05-xq" ); ctx.dbgCompareTensor( xk, "05-xk" );
 
 		// The cache is a rotating buffer

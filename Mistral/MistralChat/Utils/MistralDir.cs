@@ -1,5 +1,6 @@
 ﻿namespace MistralChat;
 using System.IO;
+using Torch;
 
 sealed class MistralDir
 {
@@ -8,14 +9,16 @@ sealed class MistralDir
 	public readonly long? bytes;
 
 	public const string tokenizer = "tokenizer.model";
-	readonly string[] requiredFiles =
-		new string[] { "consolidated.00.pth", "params.json", tokenizer };
+	readonly string[] requiredFiles01 =
+		new string[] { "consolidate_info.json", "consolidated.00.pth", "params.json", tokenizer };
+	readonly string[] requiredFiles02 =
+		new string[] { TransformerIndex.indexFileName, "config.json", tokenizer };
 
-	bool hasRequiredFiles( string dir, out long totalBytes )
+	bool hasRequiredFiles01( string dir, out long totalBytes )
 	{
 		totalBytes = 0;
 		long cb = 0;
-		foreach( string req in requiredFiles )
+		foreach( string req in requiredFiles01 )
 		{
 			string path = Path.Combine( dir, req );
 			if( !File.Exists( path ) )
@@ -24,6 +27,40 @@ sealed class MistralDir
 		}
 		totalBytes = cb;
 		return true;
+	}
+
+	bool hasRequiredFiles02( string dir, out long totalBytes )
+	{
+		totalBytes = 0;
+		long cb = 0;
+		foreach( string req in requiredFiles02 )
+		{
+			string path = Path.Combine( dir, req );
+			if( !File.Exists( path ) )
+				return false;
+			cb += new FileInfo( path ).Length;
+		}
+
+		TransformerIndex? index = TransformerIndex.tryLoad( dir );
+		if( null == index )
+			return false;
+		long? dataSize = index.computeDataSize();
+		if( dataSize.HasValue )
+		{
+			cb += dataSize.Value;
+			totalBytes = cb;
+			return true;
+		}
+		return false;
+	}
+
+	bool hasRequiredFiles( string dir, out long totalBytes )
+	{
+		if( hasRequiredFiles02( dir, out totalBytes ) )
+			return true;
+		if( hasRequiredFiles01( dir, out totalBytes ) )
+			return true;
+		return false;
 	}
 
 	public MistralDir( string dir )

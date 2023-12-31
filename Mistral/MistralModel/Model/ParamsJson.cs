@@ -26,10 +26,16 @@ sealed class ParamsJson
 	public int sliding_window; // 4096
 	[JsonInclude]
 	public int vocab_size; // 32000
+	[JsonIgnore]
+	public float ropeTheta;
+	[JsonIgnore]
+	public eModelVersion modelVersion;
 
 	public static ParamsJson load( Stream stream )
 	{
 		ParamsJson res = JsonSerializer.Deserialize<ParamsJson>( stream ) ?? throw new ArgumentException();
+		res.ropeTheta = 10000.0f;
+		res.modelVersion = eModelVersion.Original;
 		Logger.Debug( "Deserialized params.json" );
 		return res;
 	}

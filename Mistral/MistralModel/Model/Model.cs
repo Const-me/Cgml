@@ -36,6 +36,7 @@ sealed partial class Model: iModel
 		}
 		tokenizer = readTokenizer( dev, zip );
 		transformer = (Transformer)Transformer.serializer().read( zip, dev.device, pfnProgress );
+		transformer.afterLoadFix();
 		samplingParams = SamplingParams.makeDefault();
 		cacheMetadata = new RotatingCacheMetadata( transformer.parameters.slidingWindow );
 
@@ -47,7 +48,7 @@ sealed partial class Model: iModel
 	{
 		this.dev = dev;
 		this.tokenizer = tokenizer;
-		transformer = new Transformer( dev, json, tensors );
+		transformer = new Transformer( json, tensors );
 		samplingParams = SamplingParams.makeDefault();
 		cacheMetadata = new RotatingCacheMetadata( transformer.parameters.slidingWindow );
 
