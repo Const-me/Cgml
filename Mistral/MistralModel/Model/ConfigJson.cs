@@ -5,6 +5,7 @@ using Cgml;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+/// <summary><c>config.json</c> from Mistral-7B-Instruct-v0.2 model</summary>
 sealed class ConfigJson
 {
 	[JsonInclude]
@@ -50,6 +51,7 @@ sealed class ConfigJson
 	[JsonInclude]
 	public int vocab_size;
 
+	/// <summary>Load <c>config.json</c>, and convert values into the legacy <c>params.json</c> class</summary>
 	public static ParamsJson load( string jsonPath )
 	{
 		using var stream = File.OpenRead( jsonPath );

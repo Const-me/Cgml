@@ -4,6 +4,7 @@ using Cgml;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+/// <summary><c>params.json</c> from Mistral-7B-instruct-v0.1 model</summary>
 sealed class ParamsJson
 {
 	// Do not rename these fields, they must match the names used in the params.json configuration file
@@ -26,6 +27,8 @@ sealed class ParamsJson
 	public int sliding_window; // 4096
 	[JsonInclude]
 	public int vocab_size; // 32000
+
+	// The following parameters are only present in config.json of the newer version of the model
 	[JsonIgnore]
 	public float ropeTheta;
 	[JsonIgnore]
