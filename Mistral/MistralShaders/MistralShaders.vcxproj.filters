@@ -45,5 +45,6 @@
     <None Include="Readme.md" />
     <None Include="rmsNormImpl.hlsli" />
     <None Include="softMaxImpl.hlsli" />
+    <None Include="rotaryEmbeddingFreq.hlsli" />
   </ItemGroup>
 </Project>
