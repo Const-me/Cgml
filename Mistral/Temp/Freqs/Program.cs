@@ -5,6 +5,8 @@ internal class Program
 {
 	static void Main( string[] args )
 	{
+		TestV2.test();
+
 		ReferenceData data = ReferenceData.load( @"C:\Temp\2remove\Mistral\Python\freqs_cis.tsv" );
 		Generator gen = new Generator();
 
