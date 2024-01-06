@@ -242,14 +242,13 @@ partial struct Context
 
 	public void rotaryEmbedding2( Tensor xq, Tensor xk, int columnOffset, float minusHalfDimMul, float theta )
 	{
-		const int THREADS = 128;
-		if( xq.size.x != THREADS || xk.size.x != THREADS || xq.stride.x != 1 || xk.stride.x != 1 )
+		const int DIM = 128;
+		if( xq.size.x != DIM || xk.size.x != DIM || xq.stride.x != 1 || xk.stride.x != 1 )
 			throw new ArgumentException();
 
 		var cb = new ConstantBuffers.rotaryEmbedding2
 		{
-			size = xq.size,
-			stride = xq.stride,
+			stride = xq.stride.yzw,
 			theta = theta,
 			minusHalfDimMul = minusHalfDimMul,
 			freqsOffset = columnOffset,
@@ -257,8 +256,7 @@ partial struct Context
 		context.rotaryEmbedding2( cb, xq.native );
 		dispatchRows( xq.size );
 
-		cb.size = xk.size;
-		cb.stride = xk.stride;
+		cb.stride = xk.stride.yzw;
 		context.rotaryEmbedding2( cb, xk.native );
 		dispatchRows( xk.size );
 	}

@@ -9,17 +9,15 @@ OutputTensor tensor : register( u0 );
 
 cbuffer Constants: register( b0 )
 {
-	// Size of the input/output tensor
-	uint4 size: packoffset( c0 );
-	// Stride of the input/output tensor
-	uint4 stride: packoffset( c1 );
+	// <c>yzw</c> stride of the input/output tensor
+	uint3 stride: packoffset( c0 );
 
 	// 1000000.0
-	float theta : packoffset( c2.x );
+	float theta : packoffset( c0.w );
 	// -2.0 / json.head_dim
-	float minusHalfDimMul : packoffset( c2.y );
+	float minusHalfDimMul : packoffset( c1.x );
 
-	int freqsOffset : packoffset( c2.z );
+	int freqsOffset : packoffset( c1.y );
 }
 
 #if USE_FP64
@@ -75,51 +73,32 @@ const float2 computeFreqs( int2 i2 )
 	return result;
 }
 
-static const uint THREADS = 128;
+static const uint DIM = 128;
+static const uint HALF_DIM = DIM / 2;	// 64
 
-groupshared float sourceBuffer[ THREADS ];
-groupshared float2 sinCosBuffer[ THREADS / 2 ];
-
-[ numthreads( THREADS, 1, 1 ) ]
+[ numthreads( HALF_DIM, 1, 1 ) ]
 void main( uint3 group: SV_GroupID, uint thread : SV_GroupIndex )
 {
-	// Load the row from source tensor into the group shared buffer
-	const uint rsi = dot( group, stride.yzw );
-	const float current = load( tensor, rsi + thread );
-	sourceBuffer[ thread ] = current;
+	// Compute sin and cos
+	int2 freqSource;
+	freqSource.x = (int)thread;
+	freqSource.y = (int)group.y + freqsOffset;
+	const float2 sinCos = computeFreqs( freqSource );
 
-	// Compute THREADS / 2 sin and cos values
-	// The second half is identical, see `emb = torch.cat((freqs, freqs), dim=-1)` in Python
-	const uint halfGroup = THREADS / 2;
-	float2 sinCos = 0;
-	[branch]
-	if( thread < halfGroup )
-	{
-		int2 freqSource;
-		freqSource.x = (int)thread;
-		freqSource.y = (int)group.y + freqsOffset;
-		sinCos = computeFreqs( freqSource );
-		sinCosBuffer[ thread ] = sinCos;
-	}
+	// Load the row from the tensor into local variables
+	// source.x is the first half, source.y is the second one
+	const uint rsi = dot( group, stride );
+	const float2 source = float2(
+		load( tensor, rsi + thread ),
+		load( tensor, rsi + thread + HALF_DIM ) );
 
-	GroupMemoryBarrierWithGroupSync();
-
-	// q_embed = (q * cos) + (rotate_half(q) * sin)
-	// k_embed = (k * cos) + (rotate_half(k) * sin)
-	
-	// These transformer developers lied in the documentation.
-	// rotate_half() function doesn't just "Rotates half the hidden dims of the input", it also negates one of these halves
-	float rotated;
-	[branch]
-	if( thread < halfGroup )
-		rotated = -sourceBuffer[ thread + halfGroup ];
-	else
-	{
-		rotated = sourceBuffer[ thread - halfGroup ];
-		sinCos = sinCosBuffer[ thread - halfGroup ];
-	}
-
-	float result = sinCos.x * current;
-	result = mad( sinCos.y, rotated, result );
+	// First half of the row
+	float result = sinCos.x * source.x;
+	result = mad( sinCos.y, -source.y, result );
 	store( tensor, rsi + thread, result );
+
+	// Second half of the row
+	result = sinCos.x * source.y;
+	result = mad( sinCos.y, source.x, result );
+	store( tensor, rsi + thread + HALF_DIM, result );
 }
