@@ -165,6 +165,9 @@
     <FxCompile Include="rotaryEmbedding.fp1.hlsl" />
     <FxCompile Include="rotaryEmbedding.fp2.hlsl" />
     <FxCompile Include="rotaryEmbedding.hlsl" />
+    <FxCompile Include="rotaryEmbedding2.fp1.hlsl" />
+    <FxCompile Include="rotaryEmbedding2.fp2.hlsl" />
+    <FxCompile Include="rotaryEmbedding2.hlsl" />
     <FxCompile Include="rowMatProduct.hlsl" />
     <FxCompile Include="rowMatProductFixed.hlsl" />
     <FxCompile Include="rowMatProductBc1.hlsl" />

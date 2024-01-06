@@ -32,6 +32,9 @@
     <FxCompile Include="sampleAll.hlsl" />
     <FxCompile Include="sampleAll.fp1.hlsl" />
     <FxCompile Include="sampleTopK.hlsl" />
+    <FxCompile Include="rotaryEmbedding2.hlsl" />
+    <FxCompile Include="rotaryEmbedding2.fp1.hlsl" />
+    <FxCompile Include="rotaryEmbedding2.fp2.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="miscUtils.hlsli" />
