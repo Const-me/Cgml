@@ -117,12 +117,11 @@ sealed partial class Model: iModel
 				}
 
 			case eModelVersion.Instruct02:
-#if true
-				// TODO: switch the #if and debug the TopK sampling
+#if false
 				return ctx.sampleMax( logprobs );
 #else
 				random ??= new Random();
-				int topK = 50;
+				const int topK = 50;
 				return ctx.sampleTopK( logprobs, topK, random );
 #endif
 			default:
@@ -135,6 +134,9 @@ sealed partial class Model: iModel
 		Context ctx = transformer.context( dev, performanceParams );
 		using var rootBlock = ctx.profilerBlock( eProfilerBlock.Generate );
 		transformer.prepareCaches( ctx );
+#if DEBUG
+		ctx.testTopK();
+#endif
 
 		List<int[]> promptTokens = new List<int[]>( 1 )
 		{
