@@ -222,6 +222,8 @@ HRESULT GpuProfiler::blockStart( uint16_t which ) noexcept
 		BlockState* parentBlock;
 		if( stack.empty() )
 		{
+			// Start of a top-level block, initialize RenderDoc capture
+			renderDocCapture.emplace( device );
 			context->Begin( disjoint );
 			parentBlock = nullptr;
 		}
@@ -260,7 +262,7 @@ HRESULT GpuProfiler::blockEnd() noexcept
 		stack.pop_back();
 
 		if( !stack.empty() )
-			return S_OK;
+			return S_OK;	// Was not a top-level block
 
 		const D3D11_QUERY_DATA_TIMESTAMP_DISJOINT dtsd = waitForDisjointData( context, disjoint );
 		queries.join();
@@ -280,6 +282,8 @@ HRESULT GpuProfiler::blockEnd() noexcept
 			// The timestamp returned by ID3D11DeviceContext::GetData for a timestamp query is only reliable if Disjoint is FALSE.
 			resultsReset();
 		}
+
+		renderDocCapture.reset();
 		return S_OK;
 	}
 	catch( HRESULT hr )

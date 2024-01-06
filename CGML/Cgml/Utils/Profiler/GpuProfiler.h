@@ -1,6 +1,8 @@
 #pragma once
+#include <optional>
 #include "ProfileCollection.h"
 #include "DelayExecution.h"
+#include <D3D/RenderDoc/renderDoc.h>
 
 class GpuProfiler
 {
@@ -102,6 +104,7 @@ class GpuProfiler
 #endif
 
 	ProfileCollection collection;
+	std::optional<DirectCompute::CaptureRaii> renderDocCapture;
 
 	void resultsMakeTime( uint64_t freq );
 	void resultsReset();

@@ -7,7 +7,9 @@
 		<license type="expression">LGPL-2.1-only</license>
 		<projectUrl>https://github.com/Const-me/Cgml</projectUrl>
 		<description>GPU-targeted vendor-agnostic AI library for Windows</description>
-		<releaseNotes>New API to decode images, and process them into CGML tensors</releaseNotes>
+		<releaseNotes>New API to decode images, and process them into CGML tensors.
+
+Integrated RenderDoc debugger: launch your app from RenderDoc and hold F12 to capture GPU compute calls.</releaseNotes>
 		<copyright>Copyright © const.me, 2023</copyright>
 		<tags>gpgpu, AI, ML</tags>
 		<repository type="git" url="https://github.com/Const-me/Cgml.git" />
