@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 /// <summary>Implements these ML algorithms, and contains a cache with GPU buffers</summary>
 [StructLayout( LayoutKind.Auto )]
-readonly partial struct Context
+partial struct Context
 {
 	const bool bfloat16 = false;
 	const eDataType defaultDataType = bfloat16 ? eDataType.BF16 : eDataType.FP16;
@@ -16,11 +16,7 @@ readonly partial struct Context
 	readonly iDevice device;
 	public readonly Parameters parameters;
 	readonly bool isFastGpu;
-
-#if DEBUG
-	static readonly string pathPythonDumps = @"C:\Temp\2remove\Mistral\Python";
-	readonly string? dumps;
-#endif
+	public eModelVersion modelVersion => parameters.modelVersion;
 
 	/// <summary>Create the structure</summary>
 	public Context( in Device dev, TemporaryTensors temp, Parameters parameters, PerformanceParams perfParams )
@@ -36,24 +32,9 @@ readonly partial struct Context
 			dumps = pathPythonDumps;
 		else
 			dumps = null;
+		prefix = null;
 #endif
 	}
-
-#if DEBUG
-	public void dbgCompareTensor( iTensor tensor, string zip )
-	{
-		if( null == dumps )
-			return;
-		var data = context.downloadTensor( tensor );
-		string path = Path.Combine( dumps, Path.ChangeExtension( zip, ".zip" ) );
-		var test = Torch.TensorLoader.load( path );
-		TensorsDiff diff = data.diff( test );
-		Logger.Debug( @"""{0}"": {1}", zip, diff );
-	}
-
-	public void dbgCompareTensor( Tensor tensor, string zip ) =>
-		dbgCompareTensor( tensor.native, zip );
-#endif
 
 	Tensor fp16( ref Tensor? cache, in Int128 size )
 	{
@@ -256,6 +237,29 @@ readonly partial struct Context
 		cb.size = xk.size;
 		cb.stride = xk.stride;
 		context.rotaryEmbedding( cb, xk.native );
+		dispatchRows( xk.size );
+	}
+
+	public void rotaryEmbedding2( Tensor xq, Tensor xk, int columnOffset, float minusHalfDimMul, float theta )
+	{
+		const int THREADS = 128;
+		if( xq.size.x != THREADS || xk.size.x != THREADS || xq.stride.x != 1 || xk.stride.x != 1 )
+			throw new ArgumentException();
+
+		var cb = new ConstantBuffers.rotaryEmbedding2
+		{
+			size = xq.size,
+			stride = xq.stride,
+			theta = theta,
+			minusHalfDimMul = minusHalfDimMul,
+			freqsOffset = columnOffset,
+		};
+		context.rotaryEmbedding2( cb, xq.native );
+		dispatchRows( xq.size );
+
+		cb.size = xk.size;
+		cb.stride = xk.stride;
+		context.rotaryEmbedding2( cb, xk.native );
 		dispatchRows( xk.size );
 	}
 

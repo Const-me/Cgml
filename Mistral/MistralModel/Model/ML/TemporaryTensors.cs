@@ -20,4 +20,7 @@ sealed class TemporaryTensors: TensorPool
 	public Tensor? result;
 	public Tensor? topPCounters, topP;
 	public Tensor? logProbsTrimmed;
+#if DEBUG
+	public Tensor? dbgRowMajor;
+#endif
 }

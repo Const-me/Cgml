@@ -102,6 +102,34 @@ sealed partial class Model: iModel
 
 	RotatingCacheMetadata cacheMetadata;
 
+	Tensor makeToken( in Context ctx, Tensor logprobs )
+	{
+		switch( transformer.modelVersion )
+		{
+			case eModelVersion.Original:
+				SamplingParams? samplingParams = this.samplingParams;
+				if( null == samplingParams )
+					return ctx.sampleMax( logprobs );
+				else
+				{
+					random ??= new Random();
+					return ctx.sampleTopP( logprobs, samplingParams, random );
+				}
+
+			case eModelVersion.Instruct02:
+#if true
+				// TODO: switch the #if and debug the TopK sampling
+				return ctx.sampleMax( logprobs );
+#else
+				random ??= new Random();
+				int topK = 50;
+				return ctx.sampleTopK( logprobs, topK, random );
+#endif
+			default:
+				throw new NotImplementedException();
+		}
+	}
+
 	string iModel.generate( string prompt, int maxTokens )
 	{
 		Context ctx = transformer.context( dev, performanceParams );
@@ -124,7 +152,7 @@ sealed partial class Model: iModel
 		using( var block = ctx.profilerBlock( eProfilerBlock.PreFill ) )
 		{
 			cacheMetadata.begin( minPromptSize );
-			logprobs = transformer.preFill( ctx, input, cacheMetadata, minPromptSize );
+			logprobs = transformer.preFill( ref ctx, input, cacheMetadata, minPromptSize );
 			cacheMetadata.end( minPromptSize );
 
 			// ctx.dbgCompareTensor( logprobs, "15-logits" );
@@ -151,15 +179,7 @@ sealed partial class Model: iModel
 					dev.context.download( prevToken, pfnRead, eDownloadFlag.ReadStaging );
 				}
 
-				Tensor token;
-				SamplingParams? samplingParams = this.samplingParams;
-				if( null == samplingParams )
-					token = ctx.sampleMax( logprobs );
-				else
-				{
-					random ??= new Random();
-					token = ctx.sampleTopP( logprobs, samplingParams, random );
-				}
+				Tensor token = makeToken( ctx, logprobs );
 
 				// Submit CopyResource command, but don't yet access the data in the staging tensor
 				// By the next iteration of this loop it will definitely arrive, computeNext() method below dispatch hundreds of compute shaders
@@ -167,10 +187,11 @@ sealed partial class Model: iModel
 				prevToken = token.native;
 
 				cacheMetadata.begin();
-				logprobs = transformer.computeNext( ctx, token, cacheMetadata );
+				logprobs = transformer.computeNext( ref ctx, token, cacheMetadata, i );
 				cacheMetadata.end();
 
-				ctx.logSoftMax( logprobs );
+				if( transformer.modelVersion == eModelVersion.Original )
+					ctx.logSoftMax( logprobs );
 			}
 
 			// Fetch final token from the staging buffer
@@ -227,7 +248,7 @@ sealed partial class Model: iModel
 		using( var block = ctx.profilerBlock( eProfilerBlock.PreFill ) )
 		{
 			cacheMetadata.begin( promptSize );
-			logprobs = transformer.preFill( ctx, input, cacheMetadata, promptSize );
+			logprobs = transformer.preFill( ref ctx, input, cacheMetadata, promptSize );
 			cacheMetadata.end( promptSize );
 
 			ctx.logSoftMax( logprobs );
@@ -246,15 +267,7 @@ sealed partial class Model: iModel
 			string result = "";
 			for( int i = 0; i < maxTokens; i++ )
 			{
-				Tensor token;
-				SamplingParams? samplingParams = this.samplingParams;
-				if( null == samplingParams )
-					token = ctx.sampleMax( logprobs );
-				else
-				{
-					random ??= new Random();
-					token = ctx.sampleTopP( logprobs, samplingParams, random );
-				}
+				Tensor token = makeToken( ctx, logprobs );
 
 				dev.context.download( token.native, pfnRead );
 
@@ -278,7 +291,7 @@ sealed partial class Model: iModel
 				}
 
 				cacheMetadata.begin();
-				logprobs = transformer.computeNext( ctx, token, cacheMetadata );
+				logprobs = transformer.computeNext( ref ctx, token, cacheMetadata, i );
 				cacheMetadata.end();
 
 				ctx.logSoftMax( logprobs );

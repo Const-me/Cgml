@@ -30,7 +30,7 @@ sealed class Attention: IDisposable
 		Tensor xk = ctx.columnProduct( x, wk, ref ctx.temp.xk );
 		Tensor xv = ctx.columnProduct( x, wv, ref ctx.temp.xv );
 
-		// ctx.dbgCompareTensor( xq, "03-xq" ); ctx.dbgCompareTensor( xk, "03-xk" ); ctx.dbgCompareTensor( xv, "03-xv" );
+		ctx.dbgCompareTensor( xq, "03-xq" ); ctx.dbgCompareTensor( xk, "03-xk" ); ctx.dbgCompareTensor( xv, "03-xv" );
 
 		// xq = xq.view(bsz, seqlen, self.n_heads, self.args.head_dim)
 		xq.view( ctx.parameters.headDim, ctx.parameters.countHeads, xq.size.y, xq.size.z );
@@ -41,16 +41,33 @@ sealed class Attention: IDisposable
 
 		// xq, xk = apply_rotary_emb(xq, xk, freqs_cis=freqs_cis)
 		float theta = ctx.parameters.ropeTheta;
-		ctx.rotaryEmbedding( xq, xk, cacheMetadata.absolute, ctx.parameters.minusHalfDimMul, theta );
-		// ctx.dbgCompareTensor( xq, "05-xq" ); ctx.dbgCompareTensor( xk, "05-xk" );
+		if( ctx.modelVersion == eModelVersion.Instruct02 )
+			ctx.rotaryEmbedding2( xq, xk, cacheMetadata.absolute, ctx.parameters.minusHalfDimMul, theta );
+		else
+			ctx.rotaryEmbedding( xq, xk, cacheMetadata.absolute, ctx.parameters.minusHalfDimMul, theta );
 
+#if DEBUG
+		if( ctx.modelVersion == eModelVersion.Instruct02 )
+		{
+			TensorShape ts = xq.shape;
+			ts = ts.permute( 0, 2, 1, 3 );
+
+			Tensor tmp = ctx.copyTranspose( xq, ts, ref ctx.temp.dbgRowMajor );
+			ctx.dbgCompareTensor( tmp, "05-xq" );
+
+			ts = xk.shape;
+			ts = ts.permute( 0, 2, 1, 3 );
+			tmp = ctx.copyTranspose( xk, ts, ref ctx.temp.dbgRowMajor );
+			ctx.dbgCompareTensor( tmp, "05-xk" );
+		}
+#endif
 		// The cache is a rotating buffer
 		(Tensor cacheK, Tensor cacheV) = getCacheTensors( ctx, xk.size.w );
 
 		// Store into the caches
 		ctx.updateAttnCache( cacheK, xk, cacheMetadata.storePosition );
 		ctx.updateAttnCache( cacheV, xv, cacheMetadata.storePosition );
-		// ctx.dbgCompareTensor( cacheK, "07-ck" ); ctx.dbgCompareTensor( cacheV, "07-cv" );
+// 		ctx.dbgCompareTensor( cacheK, "07-ck" ); ctx.dbgCompareTensor( cacheV, "07-cv" );
 
 		Tensor key, value;
 
@@ -69,20 +86,20 @@ sealed class Attention: IDisposable
 			ctx.parameters.repeats,
 			ref ctx.temp.scores,
 			ctx.parameters.attnScoresMul );
-		// ctx.dbgCompareTensor( scores, "09-scores" );
+		ctx.dbgCompareTensor( scores, "09-scores" );
 
 		if( mask.HasValue )
 			ctx.applyMask( scores, mask.Value );
-		// ctx.dbgCompareTensor( scores, "10-scores" );
+		ctx.dbgCompareTensor( scores, "10-scores" );
 
 		ctx.softMax( scores );
-		// ctx.dbgCompareTensor( scores, "11-scores" );
+		ctx.dbgCompareTensor( scores, "11-scores" );
 
 		Tensor res = ctx.mulMatRepeatZ( value.native, scores.native,
 			value.shape, scores.shape,
 			ctx.parameters.repeats,
 			ref ctx.temp.attnTemp1 );
-		// ctx.dbgCompareTensor( res, "12-out" );
+		ctx.dbgCompareTensor( res, "12-out" );
 
 		res = ctx.copyTranspose( res,
 			res.shape.permute( 0, 2, 1, 3 ),
@@ -92,7 +109,7 @@ sealed class Attention: IDisposable
 		res.view( size );
 
 		res = ctx.columnProduct( res, wo, ref ctx.temp.attnOut );
-		// ctx.dbgCompareTensor( res, "13-attn-out" );
+		ctx.dbgCompareTensor( res, "13-attn-out" );
 
 		return res;
 	}

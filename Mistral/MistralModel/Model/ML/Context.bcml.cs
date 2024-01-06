@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 #pragma warning disable CS0162 // Unreachable code detected, due to bfloat16 constant                                                        
 
-readonly partial struct Context
+partial struct Context
 {
 	struct RowMatProductCb
 	{

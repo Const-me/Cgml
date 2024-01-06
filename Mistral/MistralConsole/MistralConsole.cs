@@ -44,10 +44,10 @@ static class Program
 		// using iModel model = loadOrig();
 
 		// Prompt
-		string prompts = "I believe the meaning of life is";
+		string prompts = "[INST] What is your favourite condiment? [/INST]";
 
 		// Generate and print the results
-		const int maxTokens = 35;
+		const int maxTokens = 128;
 		{
 			string result = model.generate( prompts, maxTokens );
 			Console.WriteLine( result );

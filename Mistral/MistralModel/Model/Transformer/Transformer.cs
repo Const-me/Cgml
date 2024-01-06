@@ -16,6 +16,8 @@ sealed class Transformer: IDisposable
 	internal readonly Parameters parameters;
 	[IgnoreDataMember]
 	TemporaryTensors temp = new TemporaryTensors();
+	[IgnoreDataMember]
+	public eModelVersion modelVersion => parameters.modelVersion;
 
 	/// <summary>Construct from the original Python model</summary>
 	public Transformer( ParamsJson p, Dictionary<string, iTensor> tensors )
@@ -44,35 +46,54 @@ sealed class Transformer: IDisposable
 		return new Context( dev, temp, parameters, perfParams );
 	}
 
-	public Tensor preFill( in Context ctx, iTensor tokens, iRotatingCacheMetadata cacheMetadata, int length )
+	public Tensor preFill( ref Context ctx, iTensor tokens, iRotatingCacheMetadata cacheMetadata, int length )
 	{
+#if DEBUG
+		ctx.prefix = "pre";
+#endif
+		// ctx.dbgCompareTensor( tokens, "01-tokens" );
 		const int colStart = 0;
 		int colEnd = length;
 		Tensor t = ctx.getRows( tok_embeddings, tokens, colStart, colEnd, ref temp.inpL );
-		// ctx.dbgCompareTensor( t, "01-embeddings" );
+		ctx.dbgCompareTensor( t, "01-embeddings" );
 		ModelMask mask = new ModelMask( colStart, colEnd );
 
-		foreach( var layer in layers )
+		for( int i = 0; i < layers.Length; i++ )
 		{
+			TransformerBlock layer = layers[ i ];
+#if DEBUG
+			ctx.prefix = $"pre-b{i}";
+#endif
 			using var block = ctx.profilerBlock( eProfilerBlock.Layer );
 			t = layer.forward( ctx, t, cacheMetadata, mask );
 		}
-
+#if DEBUG
+		ctx.prefix = "pre";
+#endif
 		ctx.rmsNorm( t, norm );
 		t = ctx.columnProduct( t, output, ref temp.result );
 		return t;
 	}
 
-	public Tensor computeNext( in Context ctx, Tensor tokens, iRotatingCacheMetadata cacheMetadata )
+	public Tensor computeNext( ref Context ctx, Tensor tokens, iRotatingCacheMetadata cacheMetadata, int idx )
 	{
+#if DEBUG
+		ctx.prefix = $"{idx}";
+#endif
 		Tensor t = ctx.getRows( tok_embeddings, tokens.native, 0, 1, ref temp.inpL );
 
-		foreach( var layer in layers )
+		for( int i = 0; i < layers.Length; i++ )
 		{
+			TransformerBlock layer = layers[ i ];
+#if DEBUG
+			ctx.prefix = $"{idx}-b{i}";
+#endif
 			using var block = ctx.profilerBlock( eProfilerBlock.Layer );
 			t = layer.forward( ctx, t, cacheMetadata, null );
 		}
-
+#if DEBUG
+		ctx.prefix = $"{idx}";
+#endif
 		ctx.rmsNorm( t, norm );
 		t = ctx.columnProduct( t, output, ref temp.result );
 		return t;
