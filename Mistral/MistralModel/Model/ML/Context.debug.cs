@@ -34,7 +34,7 @@ partial struct Context
 #endif
 
 #if DEBUG
-	readonly struct TopKTemp: IComparable<TopKTemp>
+	readonly struct TopKTemp
 	{
 		public readonly float e;
 		public readonly int idx;
@@ -43,8 +43,6 @@ partial struct Context
 			this.e = (float)e;
 			this.idx = idx;
 		}
-		public int CompareTo( TopKTemp other ) => -e.CompareTo( other.e );
-
 		public override string ToString() => $"{e} #{idx}";
 	}
 
@@ -53,7 +51,8 @@ partial struct Context
 		TopKTemp[] temp = new TopKTemp[ sourceData.Length ];
 		for( int i = 0; i < sourceData.Length; i++ )
 			temp[ i ] = new TopKTemp( sourceData[ i ], i );
-		Array.Sort( temp );
+		// Sadly, Array.Sort is unstable sort, we need stable sorting here
+		temp = temp.OrderByDescending( t => t.e ).ToArray();
 
 		float threshold = temp[ topK - 1 ].e;
 		while( topK < temp.Length && threshold == temp[ topK ].e )
@@ -92,6 +91,7 @@ partial struct Context
 		const int topK = 50;
 
 		// Generate source data in system memory
+		// We don't want randomness while debugging stuff, seeding Random() with a constant
 		Random rand = new Random( 0 );
 		Half[] sourceData = new Half[ length ];
 		for( int i = 0; i < length; i++ )
@@ -120,7 +120,7 @@ partial struct Context
 		var cb = new ConstantBuffers.sampleTopK
 		{
 			width = (uint)size.x,
-			topK = (uint)topK,
+			topK = topK,
 			rand = rand.NextSingle(),
 		};
 		context.sampleTopK( cb, temp.native, res.native, source );
@@ -140,6 +140,8 @@ partial struct Context
 
 		// Print these two integers
 		Logger.Info( "testTopK: GPU {0}, CPU {1}", resultGpu, resultCpu );
+		if( resultGpu != resultCpu )
+			throw new ApplicationException( "Test failed" );
 	}
 #endif
 }
