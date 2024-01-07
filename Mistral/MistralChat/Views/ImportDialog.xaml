@@ -12,8 +12,10 @@
 		</Grid.RowDefinitions>
 
 		<StackPanel Grid.Row="0">
-			<TextBlock>Import model in the original format. The main one can be downloaded <Hyperlink Click="magnet_Click">with BitTorrent</Hyperlink></TextBlock>
-			<TextBlock>They have also <Hyperlink Click="chat_Click">published</Hyperlink> a version fine-tuned for chat.</TextBlock>
+			<TextBlock Margin="0,0,0,4">Import model in the original format.</TextBlock>
+			<TextBlock Margin="0,0,0,4">The newer Mistral-7B-Instruct-v0.2 is <Hyperlink Click="instruct02_Click">on huggingface</Hyperlink>.</TextBlock>
+			<TextBlock>The original one can be downloaded <Hyperlink Click="magnet_Click">with BitTorrent</Hyperlink>.
+				They have also <Hyperlink Click="chat_Click">published</Hyperlink> a version fine-tuned for chat.</TextBlock>
 			<Border Height="10" />
 			<TextBlock Text="Model folder, containing tokenizer.model file:" />
 			<Border Height="6" />

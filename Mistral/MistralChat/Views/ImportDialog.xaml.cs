@@ -16,6 +16,9 @@ public partial class ImportDialog: Window
 	/// <summary>HTTP link to Instruct version</summary>
 	const string strChat = @"https://files.mistral-7b-v0-1.mistral.ai/mistral-7B-instruct-v0.1b.tar";
 
+	/// <summary>HTTP link to Instruct 0.2 version</summary>
+	const string instruct02 = @"https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2/tree/main";
+
 	public ImportDialog()
 	{
 		InitializeComponent();
@@ -49,14 +52,14 @@ public partial class ImportDialog: Window
 		return res;
 	}
 
-	void magnet_Click( object sender, RoutedEventArgs e )
+	static void launch( string link )
 	{
-		using var p = Process.Start( new ProcessStartInfo( strMagnet ) { UseShellExecute = true } );
+		using var p = Process.Start( new ProcessStartInfo( link ) { UseShellExecute = true } );
 	}
-	void chat_Click( object sender, RoutedEventArgs e )
-	{
-		using var p = Process.Start( new ProcessStartInfo( strChat ) { UseShellExecute = true } );
-	}
+
+	void magnet_Click( object sender, RoutedEventArgs e ) => launch( strMagnet );
+	void chat_Click( object sender, RoutedEventArgs e ) => launch( strChat );
+	void instruct02_Click( object sender, RoutedEventArgs e ) => launch( instruct02 );
 
 	void browse_Click( object sender, RoutedEventArgs e )
 	{
