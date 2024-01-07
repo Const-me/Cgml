@@ -1,8 +1,6 @@
 ﻿namespace Mistral;
 
 /// <summary>Version of the model</summary>
-/// <remarks>There're non-trivial differences between these models.<br/>
-/// Sadly, I couldn't contain these incompatibilities within this DLL because the chat template is slightly different.</remarks>
 enum eModelVersion: int
 {
 	/// <summary>Ported from MistralAI</summary>
