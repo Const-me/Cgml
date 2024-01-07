@@ -17,6 +17,7 @@
 * `SentencePiece` static library is copy-pasted [from Google](https://github.com/google/sentencepiece), Apache-2.0 license.<br/>
   No changes there, but I have implemented COM API around the library.
 
-* `MistralChat.FolderPicker` class was copy-pasted [from stackoverflow](https://stackoverflow.com/a/66187224/126995).
+* `MistralChat.FolderPicker` class was copy-pasted [from stackoverflow](https://stackoverflow.com/a/66187224/126995).<br/>
+  [The hack](https://github.com/Const-me/Cgml/blob/master/Mistral/MistralChat/Utils/SelectableTextBlock.cs) to enable selection in chat history is also [from there](https://stackoverflow.com/a/45627524/126995).
 
 * Since version 1.1, `Cgml.dll` includes [LZ4 library](https://github.com/lz4/lz4).
