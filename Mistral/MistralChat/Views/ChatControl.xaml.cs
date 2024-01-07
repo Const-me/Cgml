@@ -77,6 +77,19 @@ public partial class ChatControl: UserControl
 		Clipboard.SetText( sb.ToString() );
 	}
 
+	void copyMessage_Click( object sender, RoutedEventArgs e )
+	{
+		// Cast sender to FrameworkElement, in fact it's a MenuItem but we only need a FrameworkElement base class here
+		FrameworkElement? fwe = sender as FrameworkElement;
+		// Get the right clicked chat message. Luckily, menu items inherit data context from the owner.
+		iChatMessageVM? message = fwe?.DataContext as iChatMessageVM;
+		if( null != message )
+		{
+			// Copy the message to clipboard
+			Clipboard.SetText( message.text );
+		}
+	}
+
 	void regenerate_click( object sender, RoutedEventArgs e )
 	{
 		iChatVM? vm = viewModel;

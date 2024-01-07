@@ -73,9 +73,33 @@
 			<!-- Enable copying text with a context menu --> 
 			<ItemsControl.ContextMenu>
 				<ContextMenu>
-					<MenuItem Header="_Copy" Click="copyChat_Click"/>
+					<MenuItem Header="Copy _History" Click="copyChat_Click"/>
 				</ContextMenu>
 			</ItemsControl.ContextMenu>
+			<ItemsControl.ItemContainerStyle>
+				<Style TargetType="ContentPresenter">
+					<Setter Property="ContextMenu">
+						<Setter.Value>
+							<ContextMenu>
+								<MenuItem Header="Copy _Message">
+									<MenuItem.Style>
+										<Style TargetType="MenuItem">
+											<EventSetter Event="Click" Handler="copyMessage_Click"/>
+										</Style>
+									</MenuItem.Style>
+								</MenuItem>
+								<MenuItem Header="Copy _History">
+									<MenuItem.Style>
+										<Style TargetType="MenuItem">
+											<EventSetter Event="Click" Handler="copyChat_Click"/>
+										</Style>
+									</MenuItem.Style>
+								</MenuItem>
+							</ContextMenu>
+						</Setter.Value>
+					</Setter>
+				</Style>
+			</ItemsControl.ItemContainerStyle>
 		</ItemsControl>
 
 		<Grid Grid.Row="2" Margin="0,3,0,5">
