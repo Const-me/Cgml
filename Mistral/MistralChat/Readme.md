@@ -9,9 +9,9 @@ For this reason, to run the app you gonna need .NET Desktop Runtime, as opposed 
 Download .NET 6.0 Desktop Runtime for Windows OS and x64 platform [from microsoft.com](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).<br/>
 Install that thing.
 
-Download `Mistral-7B-instruct-bcml1.cgml` file with BitTorrent, from the following magnet link:<br/>
-`magnet:?xt=urn:btih:E1419810A5CB8419958B02170AB044DD7354F39C&dn=Mistral-7B-instruct&tr=udp%3A%2F%2Fbt2.archive.org%3A6969%2Fannounce`<br />
-If the link won’t work, this folder also contains the corresponding `Mistral-7B-instruct.torrent` file.
+Download `Mistral-7B-Instruct-02.cgml` file with BitTorrent, from the following magnet link:<br/>
+`magnet:?xt=urn:btih:975238554968CC67678052360BE5FD006453EACC&dn=Mistral-7B-instruct02&tr=udp%3A%2F%2Fbt1.archive.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fbt2.archive.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A6969%2F&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce`<br />
+If the link won’t work, this folder also contains the corresponding `Mistral-7B-instruct02.torrent` file.
 
 Note it’s a large file, 4.55 GB.<br/>
 I have only rented the [seedbox](https://seedboxes.cc/) for 3 months, the link will probably expire in March 2024.
@@ -20,7 +20,7 @@ Download `MistralChat.zip` from Releases page of this repository.<br/>
 Extract the ZIP, and run MistralChat.exe.
 
 In the main menu of the window, press “File / Open Model…” command.<br/>
-Select the `Mistral-7B-instruct-bcml1.cgml` file.<br/>
+Select the `Mistral-7B-Instruct-02.cgml` file.<br/>
 Press OK button.
 
 Chat with the AI.
