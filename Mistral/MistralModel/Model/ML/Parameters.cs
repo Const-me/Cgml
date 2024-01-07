@@ -3,11 +3,6 @@ using Cgml;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
-enum eModelVersion: int
-{
-	Original = 0,
-	Instruct02 = 1
-}
 
 [DataContract]
 sealed class Parameters
