@@ -20,13 +20,13 @@
 		<local:ChatLogTemplateSelector x:Key="templateSelector">
 			<local:ChatLogTemplateSelector.user>
 				<DataTemplate>
-					<TextBlock HorizontalAlignment="Right" Margin="32,4,4,4"
+					<local:SelectableTextBlock HorizontalAlignment="Right" Margin="32,4,4,4"
 						Text="{Binding}" Style="{StaticResource chatMessage}" />
 				</DataTemplate>
 			</local:ChatLogTemplateSelector.user>
 			<local:ChatLogTemplateSelector.computer>
 				<DataTemplate>
-					<TextBlock HorizontalAlignment="Left" Margin="4,4,32,4"
+					<local:SelectableTextBlock HorizontalAlignment="Left" Margin="4,4,32,4"
 						Text="{Binding text}" Style="{StaticResource chatMessage}" />
 				</DataTemplate>
 			</local:ChatLogTemplateSelector.computer>
