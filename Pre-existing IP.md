@@ -18,3 +18,5 @@
   No changes there, but I have implemented COM API around the library.
 
 * `MistralChat.FolderPicker` class was copy-pasted [from stackoverflow](https://stackoverflow.com/a/66187224/126995).
+
+* Since version 1.1, `Cgml.dll` includes [LZ4 library](https://github.com/lz4/lz4).

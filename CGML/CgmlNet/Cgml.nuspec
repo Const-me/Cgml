@@ -28,5 +28,7 @@ Integrated RenderDoc debugger: launch your app from RenderDoc and hold F12 to ca
 		<file src="bin/Release/Cgml.dll" target="runtimes/win-x64/native/" />
 		<!-- Readme for the nuget package -->
 		<file src="Readme.md" target="docs/" />
+		<!-- License file for LZ4 library -->
+		<file src="bin/Release/lz4.txt" target="docs/" />
 	</files>
 </package>
