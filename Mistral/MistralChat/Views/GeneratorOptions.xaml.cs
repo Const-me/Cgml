@@ -34,6 +34,14 @@ public partial class GeneratorOptions: Window
 		gpuPowerSaver.IsChecked = powerSaverInitial;
 
 		isFastGpu.IsChecked = model.performanceParams.isFastGpu;
+
+		eModelVersion version = model.modelVersion;
+		if( version == eModelVersion.Instruct02 )
+		{
+			// Version 0.2 uses TopK sampling, it ignores temperature and TopP numbers.
+			// Hide the panel with the corresponding controls.
+			sampling01.Visibility = Visibility.Collapsed;
+		}
 	}
 
 	static string printFloat( float x ) => x.ToString( CultureInfo.InvariantCulture );

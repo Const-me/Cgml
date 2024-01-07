@@ -8,26 +8,29 @@
 		WindowStartupLocation="CenterOwner">
 	<StackPanel Margin="24,12">
 
-		<Grid>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="10" />
-				<ColumnDefinition Width="Auto" />
-			</Grid.ColumnDefinitions>
-			<Grid.RowDefinitions>
-				<RowDefinition />
-				<RowDefinition Height="4" />
-				<RowDefinition />
-			</Grid.RowDefinitions>
+		<StackPanel x:Name="sampling01">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="10" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition />
+					<RowDefinition Height="4" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
 
-			<TextBlock Text="Temperature:" />
-			<TextBox Grid.Column="2" Width="56" x:Name="temperature" />
+				<TextBlock Text="Temperature:" />
+				<TextBox Grid.Column="2" Width="56" x:Name="temperature" />
 
-			<TextBlock Text="Top P:" Grid.Row="2" />
-			<TextBox Grid.Column="2" Grid.Row="2" Width="56" x:Name="topP" />
+				<TextBlock Text="Top P:" Grid.Row="2" />
+				<TextBox Grid.Column="2" Grid.Row="2" Width="56" x:Name="topP" />
 
-		</Grid>
-		<Border Height="8" />
+			</Grid>
+			<Border Height="8" />
+		</StackPanel>
+
 		<CheckBox x:Name="isFastGpu" Content="Fast graphics card"
 			ToolTip="When checked, will run faster on discrete GPUs,&#x0a;but might fail with DXGI timeout errors on slow integrated ones." />
 		<Border Height="8" />

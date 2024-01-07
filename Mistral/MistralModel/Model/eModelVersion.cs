@@ -1,7 +1,7 @@
 ﻿namespace Mistral;
 
 /// <summary>Version of the model</summary>
-enum eModelVersion: int
+public enum eModelVersion: int
 {
 	/// <summary>Ported from MistralAI</summary>
 	/// <seealso href="https://github.com/mistralai/mistral-src" />

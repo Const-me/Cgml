@@ -54,6 +54,8 @@ sealed partial class Model: iModel
 		return new ProfilerData( arr );
 	}
 
+	eModelVersion iModel.modelVersion => transformer.modelVersion;
+
 	const string vocabEntry = "tokenizer.model";
 
 	public void save( string path, string vocab, Action<double>? pfnProgress )
