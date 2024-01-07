@@ -157,10 +157,9 @@ sealed partial class Model: iModel
 			logprobs = transformer.preFill( ref ctx, input, cacheMetadata, minPromptSize );
 			cacheMetadata.end( minPromptSize );
 
-			// ctx.dbgCompareTensor( logprobs, "15-logits" );
-			ctx.logSoftMax( logprobs );
-			// ctx.dbgCompareTensor( logprobs, "16-lsm" );
 			logprobs = ctx.trimToLastRow( logprobs, ref ctx.temp.logProbsTrimmed );
+			if( transformer.modelVersion == eModelVersion.Original )
+				ctx.logSoftMax( logprobs );
 		}
 
 		List<int> generated = new List<int>( maxTokens );
@@ -253,8 +252,9 @@ sealed partial class Model: iModel
 			logprobs = transformer.preFill( ref ctx, input, cacheMetadata, promptSize );
 			cacheMetadata.end( promptSize );
 
-			ctx.logSoftMax( logprobs );
 			logprobs = ctx.trimToLastRow( logprobs, ref ctx.temp.logProbsTrimmed );
+			if( transformer.modelVersion == eModelVersion.Original )
+				ctx.logSoftMax( logprobs );
 		}
 
 		List<int> generated = new List<int>( maxTokens );
@@ -296,7 +296,8 @@ sealed partial class Model: iModel
 				logprobs = transformer.computeNext( ref ctx, token, cacheMetadata, i );
 				cacheMetadata.end();
 
-				ctx.logSoftMax( logprobs );
+				if( transformer.modelVersion == eModelVersion.Original )
+					ctx.logSoftMax( logprobs );
 			}
 			return result;
 		}
