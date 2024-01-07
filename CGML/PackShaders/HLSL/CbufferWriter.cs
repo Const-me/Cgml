@@ -1,5 +1,6 @@
 ﻿namespace PackShaders;
 
+/// <summary>Generates <c>ConstantBuffers.cs</c> C# source file, with the constant buffers for all these shaders</summary>
 sealed class CbufferWriter: IDisposable
 {
 	StreamWriter writer;
@@ -40,7 +41,7 @@ static class ConstantBuffers
 		writer.WriteLine( "\t\t{0} {1};", type, name );
 	}
 
-	/// <summary></summary>
+	/// <summary>Generate constant buffer structure for one compute shader</summary>
 	public void add( string shaderName, ResourceBinding res )
 	{
 		if( res.kind != eResourceKind.CBuffer )

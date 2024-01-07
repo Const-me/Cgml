@@ -1,5 +1,6 @@
 ﻿namespace PackShaders;
 
+/// <summary>Generates <c>ContextOps.cs</c> C# source file, with extension methods to dispatch these compute shaders</summary>
 sealed class OpsWriter: IDisposable
 {
 	StreamWriter writer;
@@ -38,6 +39,7 @@ static class ContextOps
 		writer.WriteLine( "\t\tspan[ {0} ] = ((RuntimeClass){1}).nativePointer;", idx, res.name );
 	}
 
+	/// <summary>Generate extension method to dispatch the compute shader</summary>
 	public void add( string shaderName, ShaderReflection hlsl )
 	{
 		ResourceBinding[] uav = hlsl.bindings
@@ -72,7 +74,7 @@ static class ContextOps
 		writer.WriteLine( "\t\tctx.bindShader( (ushort)eShader.{0}, ref cb );", shaderName );
 
 		int bufferLength = uav.Length + srv.Length;
-		writer.WriteLine( "\t\tSpan<IntPtr> span = stackalloc IntPtr[ {0} ];", uav.Length + srv.Length );
+		writer.WriteLine( "\t\tSpan<IntPtr> span = stackalloc IntPtr[ {0} ];", bufferLength );
 		for( int i = 0; i < uav.Length; i++ )
 			setTensor( i, uav[ i ] );
 		for( int i = 0; i < srv.Length; i++ )

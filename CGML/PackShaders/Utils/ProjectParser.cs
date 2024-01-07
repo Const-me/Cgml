@@ -4,6 +4,7 @@ using System.Xml;
 using System.Xml.XPath;
 
 /// <summary>Parser for <c>.vcxproj</c> XML files</summary>
+/// <remarks>The implementation is very simple because relies on XML DOM and XPath from the standard library</remarks>
 static class ProjectParser
 {
 	/// <summary>Find all <c>&lt;FxCompile Include="..." /&gt;</c> XML elements, generate a sequence of the <c>...</c> strings</summary>

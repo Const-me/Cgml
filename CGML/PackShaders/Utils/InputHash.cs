@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 
 static class InputHash
 {
+	/// <summary>Add array of bytes to MD5</summary>
 	static void addBytes( this MD5 md5, byte[] arr ) =>
 		md5.TransformBlock( arr, 0, arr.Length, null, 0 );
 
@@ -23,6 +24,7 @@ static class InputHash
 	}
 #endif
 
+	/// <summary>Add content of the file to the MD5</summary>
 	static void addFile( this MD5 md5, string path )
 	{
 		using var stream = File.OpenRead( path );
@@ -41,6 +43,7 @@ static class InputHash
 		}
 	}
 
+	/// <summary>Finalize the MD5 hash, and convert into <see cref="Guid" /></summary>
 	static Guid hash( this MD5 md5 )
 	{
 		md5.TransformFinalBlock( Array.Empty<byte>(), 0, 0 );
@@ -48,6 +51,8 @@ static class InputHash
 		return new Guid( hash );
 	}
 
+	/// <summary>Compute MD5 hash of all shaders; the array is expected to be sorted already.</summary>
+	/// <remarks>The hash includes both <c>*.hlsl</c> source codes, and compiled binaries</remarks>
 	public static Guid compute( IEnumerable<sShaderBinary> binaries )
 	{
 		using MD5 md5 = MD5.Create();
@@ -65,6 +70,7 @@ static class InputHash
 	static string hashFilePath =>
 		Path.Combine( Program.inputs.temp, "packedShadersHash.bin" );
 
+	/// <summary><c>true</c> when the hash matches the stored value</summary>
 	public static bool isCurrent( in Guid inputHash )
 	{
 		string path = hashFilePath;
@@ -79,6 +85,7 @@ static class InputHash
 		return storedHash == inputHash;
 	}
 
+	/// <summary>Store new hash to disk</summary>
 	public static void store( in Guid inputHash ) =>
 		File.WriteAllBytes( hashFilePath, inputHash.ToByteArray() );
 }

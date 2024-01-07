@@ -1,6 +1,5 @@
 ﻿namespace PackShaders;
 using Cgml;
-using System.Net.NetworkInformation;
 
 /// <summary>Name of the HLSL, with dot-separated suffixes parsed into optional GPU features</summary>
 readonly struct sParsedName

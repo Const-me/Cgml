@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
+/// <summary>Function to parse HLSL files, and generate C# language projection.</summary>
 static class SourceParser
 {
 	// These regular expressions are horrible.
@@ -189,6 +190,9 @@ static class SourceParser
 		};
 	}
 
+	/// <summary>Parse HLSL files, and generate two C# source files:<br/>
+	/// • <c>ConstantBuffers.cs</c> with constant buffers.<br/>
+	/// • <c>ContextOps.cs</c> with extension methods to dispatch these shaders.</summary>
 	public static void generateBindings( GroupedShaders shaders )
 	{
 		using CbufferWriter structsWriter = new CbufferWriter();

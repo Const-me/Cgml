@@ -1,7 +1,9 @@
 ﻿namespace PackShaders;
 
+/// <summary>Function to generate C# enum to identify shaders</summary>
 static class ShaderNames
 {
+	/// <summary>Generate C# enum to identify shaders, write to the specified <c>*.cs</c> path</summary>
 	public static void write( string path, string[] names )
 	{
 		using var w = File.CreateText( path );
