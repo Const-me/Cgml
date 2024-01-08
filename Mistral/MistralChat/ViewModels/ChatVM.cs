@@ -70,7 +70,7 @@ sealed class ChatVM: PropertyChangedBase, iChatVM
 		owner.updateMemoryLabel();
 	}
 
-	public string initialPrompt { get; set; } = defaultPrompt;
+	public string initialPrompt { get; set; } = "";
 
 	public string watermark { get; private set; }
 
