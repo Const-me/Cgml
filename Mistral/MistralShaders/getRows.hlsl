@@ -1,4 +1,4 @@
-// Duplicate rows from the source tensor. Row indices to duplicate are taken from the second input tensor.
+// Extract rows from the source tensor. Row indices to extract are taken from the second input tensor.
 
 #include "miscUtils.hlsli"
 

@@ -1,4 +1,4 @@
-// Copy transposed tensor into row mayor destination of the same size
+// Copy transposed tensor into row major destination of the same size
 #include "miscUtils.hlsli"
 OutputTensor result : register( u0 );
 Tensor source : register( t0 );

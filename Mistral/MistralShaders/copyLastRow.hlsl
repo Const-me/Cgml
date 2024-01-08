@@ -1,4 +1,4 @@
-// Copy the final x-directed row of the tensor into y=0 position
+// Copy the last x-directed row of the tensor into y=0 position
 #include "miscUtils.hlsli"
 
 OutputTensor result : register( u0 );

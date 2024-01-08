@@ -1,4 +1,4 @@
-// Store input to the attention cache curcular buffer
+// Store input to the attention cache circular buffer
 #include "miscUtils.hlsli"
 
 Tensor input : register( t0 );

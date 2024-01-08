@@ -1,4 +1,4 @@
-// Apply diagonel mask to the tensor, writing maskValue constnt to the top-right area above the diagonal
+// Apply diagonal mask to the tensor, writing maskValue constant to the top-right area above the diagonal
 #include "miscUtils.hlsli"
 
 OutputTensor tensor : register( u0 );

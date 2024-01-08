@@ -1,4 +1,4 @@
-// Implements matrix*matrix product, using tiling and many other tricks to improve the performance
+// matrix*matrix product, the first argument is expanded in Z direction by the specified integer
 
 #ifndef TILE_SIZE
 static const uint TILE_SIZE = 32;
