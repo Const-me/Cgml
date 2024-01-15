@@ -30,12 +30,13 @@ inline uint2 exclusivePrefixSum( const uint thread, in uint val )
 
 	// Compute inclusive prefix sum, the algorithm is ported from that picture:
 	// https://en.wikipedia.org/wiki/Prefix_sum#/media/File:Hillis-Steele_Prefix_Sum.svg
-	for( uint i = 1; i < THREADS; i += i )
+	uint i;
+	for( i = 1; i < ( THREADS / 2 ); i += i )
 	{
 		prefixLocal[ thread ] = val;
 		GroupMemoryBarrierWithGroupSync();
 
-		[ branch ]
+		[branch]
 		if( thread >= i )
 		{
 			// First iteration:  i = 1, ( thread >= i ) is true for the threads [ 1 .. THREADS - 1 ]
@@ -43,15 +44,24 @@ inline uint2 exclusivePrefixSum( const uint thread, in uint val )
 			// Third iteration:  i = 4, ( thread >= i ) is true for the threads [ 4 .. THREADS - 1 ]
 			// Last iteration: i = THREADS / 2, ( thread >= i ) is true for the threads [ THREADS / 2 .. THREADS - 1 ]
 			val += prefixLocal[ thread - i ];
-
-			[ branch ]
-			if( i == ( THREADS / 2 ) && thread == ( THREADS - 1 ) )
-			{
-				// This is the last iteration of the loop, and we're running on the last thread of the group
-				// Broadcast the total sum, which is the `val` number on the last thread of the group
-				tempScalarBuffer = val;
-			}
 		}
+		GroupMemoryBarrierWithGroupSync();	
+	}
+
+	// Peel last iteration from the above loop to broadcast total sum, without another GroupMemoryBarrierWithGroupSync()
+	// With 1024 threads in the group, these sync instructions are relatively expensive.
+	{
+		prefixLocal[ thread ] = val;
+		GroupMemoryBarrierWithGroupSync();
+
+		// According to disassembly, the compiler realized `i` is a compile-time constant here, equal to 512.
+		[branch]
+		if( thread >= i )
+			val += prefixLocal[ thread - i ];
+		[branch]
+		if( thread == ( THREADS - 1 ) )
+			tempScalarBuffer = val;
+
 		GroupMemoryBarrierWithGroupSync();	
 	}
 
@@ -173,6 +183,7 @@ void main( uint thread : SV_GroupIndex )
 	// Find count of elements to use for the next step
 	// The input tensor is extremely likely to contain many duplicate values
 	// It has 32000 positive FP16 elements: https://en.wikipedia.org/wiki/Birthday_problem
+	[branch]
 	if( 0 == thread )
 	{
 		const uint minProb = probsLocal[ topK - 1 ] & 0xFFFFu;
