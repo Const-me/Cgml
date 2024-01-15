@@ -183,6 +183,36 @@ See `rotaryEmbedding.hlsl` compute shader for the implementation.
 There's a temporary utility in `Mistral/Temp/Freqs` subfolder which validates the formula I’m using in that shader,
 by comparing numbers with the `*.tsv` table I saved from the reference implementation written in Python.
 
+## Random Sampling Shaders
+
+Sampling shaders, `sampleTopP.hlsl` for the original Mistral model and `sampleTopK.hlsl` for the Instruct 0.2 model,
+are using an interesting trick to sort a long vector of floats in [O(N)](https://en.wikipedia.org/wiki/Big_O_notation) time.
+The trick is called “[counting sort](https://en.wikipedia.org/wiki/Counting_sort)”.
+That Wikipedia article says that’s an integer sorting algorithm only suitable for small integer keys.
+However, with FP16 precision everywhere in Mistral implementation, float numbers can be viewed as small integers.
+
+Because the input probabilities are non-negative, the input vector only contains up to 0x8000 = 32768 unique floats.<br/>
+To implement the sampling, these shaders are using a temporary buffer with 0x8000 `uint` elements.
+That buffer only takes 128kb of VRAM, very reasonable amount of data which should fit in L2 cache of most GPUs.
+
+The sorting algorithm has the following steps,
+with [`AllMemoryBarrierWithGroupSync()`](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/allmemorybarrierwithgroupsync)
+between the steps:
+
+1. Fill temporary buffer with zeros.
+
+2. Load input vector, count elements with [`InterlockedAdd()`](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/interlockedadd)
+  intrinsics, incrementing elements of the temporary buffer in global memory.
+
+3. Compute **exclusive** [prefix sum](https://en.wikipedia.org/wiki/Prefix_sum) of the temporary buffer, in-place.<br/>
+  Because [wave intrinsics](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/waveprefixsum) aren’t available in D3D11,
+  the implementation uses group shared memory for this step.
+
+4. Load input vector once again, and find sorted position of elements
+  using another variant of `InterlockedAdd()` which outputs original input values.
+
+On my desktop computer with nVidia 1080Ti, `sampleTopK.hlsl` compute shader takes less than 250 microseconds per dispatch.
+
 # Licensing
 
 DLL projects are covered by LGPL 2.1 license.
